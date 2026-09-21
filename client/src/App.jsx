@@ -5,6 +5,11 @@ import TestSuitesPage from './pages/TestSuitesPage';
 import TestSuiteDetailPage from './pages/TestSuiteDetailPage';
 import BugsPage from './pages/BugsPage';
 import BugDetailPage from './pages/BugDetailPage';
+import TestRunsPage from './pages/TestRunsPage';
+import TestRunDetailPage from './pages/TestRunDetailPage';
+import DashboardPage from './pages/DashboardPage';
+import ReportsPage from './pages/ReportsPage';
+import ReportDetailPage from './pages/ReportDetailPage';
 
 function HomePage() {
   const [status, setStatus] = useState('checking...');
@@ -29,6 +34,15 @@ function HomePage() {
       <p>
         <Link to="/bugs">Go to Bugs</Link>
       </p>
+      <p>
+        <Link to="/test-runs">Go to Test Runs</Link>
+      </p>
+      <p>
+        <Link to="/dashboard">Go to Dashboard</Link>
+      </p>
+      <p>
+        <Link to="/reports">Go to Reports</Link>
+      </p>
     </div>
   );
 }
@@ -43,6 +57,11 @@ function App() {
         <Route path="/test-suites/:id" element={<TestSuiteDetailPage />} />
         <Route path="/bugs" element={<BugsPage />} />
         <Route path="/bugs/:id" element={<BugDetailPage />} />
+        <Route path="/test-runs" element={<TestRunsPage />} />
+        <Route path="/test-runs/:id" element={<TestRunDetailPage />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/reports" element={<ReportsPage />} />
+        <Route path="/reports/:id" element={<ReportDetailPage />} />
       </Routes>
     </BrowserRouter>
   );

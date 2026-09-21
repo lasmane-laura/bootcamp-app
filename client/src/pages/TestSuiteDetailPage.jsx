@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getSuite, updateSuite, reorderSuiteCases, addCaseToSuite, removeCaseFromSuite } from '../api/suites';
 import { listTestCases } from '../api/test-cases';
+import { createRun } from '../api/test-runs';
 import SeverityBadge from '../components/SeverityBadge';
 import SuiteForm from '../components/SuiteForm';
 
 function TestSuiteDetailPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [suite, setSuite] = useState(null);
   const [cases, setCases] = useState([]);
   const [allTestCases, setAllTestCases] = useState([]);
@@ -95,6 +97,15 @@ function TestSuiteDetailPage() {
     }
   }
 
+  async function handleNewRun() {
+    try {
+      const run = await createRun(suite.id);
+      navigate(`/test-runs/${run.id}`);
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
   async function handleUpdateSuite(payload) {
     const data = await updateSuite(id, payload);
     setSuite((prev) => ({ ...prev, ...data }));
@@ -141,7 +152,10 @@ function TestSuiteDetailPage() {
             Feature: <strong>{suite.feature}</strong> &middot; Status: <strong>{suite.status}</strong>
           </p>
         </div>
-        <button onClick={() => setEditingSuite(true)}>Edit suite</button>
+        <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
+          <button onClick={handleNewRun}>+ New run</button>
+          <button onClick={() => setEditingSuite(true)}>Edit suite</button>
+        </div>
       </div>
 
       {error && <p style={{ color: '#a01c1c' }}>{error}</p>}
