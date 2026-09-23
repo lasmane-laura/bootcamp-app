@@ -4,6 +4,7 @@ import FlakyBadge from '../components/FlakyBadge';
 import RunHistoryDots from '../components/RunHistoryDots';
 import Select from '../components/Select';
 import SearchInput from '../components/SearchInput';
+import InfoTooltip from '../components/InfoTooltip';
 
 const PAGE_SIZE = 20;
 
@@ -84,20 +85,7 @@ function FlakyTestTrackerPage() {
     <div>
       <h1 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: '0 0 1rem' }}>
         Flaky test tracker
-        <span
-          role="img"
-          aria-label="What counts as a flaky test"
-          title={FLAKY_EXPLANATION}
-          tabIndex={0}
-          style={{
-            fontSize: '1rem',
-            color: 'var(--muted)',
-            cursor: 'help',
-            borderBottom: '1px dotted var(--muted)',
-          }}
-        >
-          ⓘ
-        </span>
+        <InfoTooltip label="What counts as a flaky test">{FLAKY_EXPLANATION}</InfoTooltip>
       </h1>
 
       <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
