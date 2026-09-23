@@ -45,6 +45,22 @@ export function RunsArt() {
   );
 }
 
+export function FlakyTestsArt() {
+  return (
+    <svg viewBox="0 0 100 100" fill="none">
+      <circle cx="50" cy="50" r="34" fill="currentColor" fillOpacity="0.15" stroke="currentColor" strokeWidth="2.5" />
+      <polyline
+        points="24,55 37,55 43,38 51,68 59,42 65,55 76,55"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 export function BugsArt() {
   return (
     <svg viewBox="0 0 100 100" fill="none">

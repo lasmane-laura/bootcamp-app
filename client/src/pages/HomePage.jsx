@@ -1,13 +1,23 @@
 import { useEffect, useState } from 'react';
 import Logo from '../components/Logo';
 import SectionCard from '../components/SectionCard';
-import { DashboardArt, TestCasesArt, SuitesArt, RunsArt, BugsArt, ReportsArt, SettingsArt } from '../components/sectionArt';
+import {
+  DashboardArt,
+  TestCasesArt,
+  SuitesArt,
+  RunsArt,
+  FlakyTestsArt,
+  BugsArt,
+  ReportsArt,
+  SettingsArt,
+} from '../components/sectionArt';
 
 const SECTIONS = [
   { to: '/dashboard', title: 'Dashboard', art: DashboardArt },
   { to: '/test-cases', title: 'Test Cases', art: TestCasesArt },
   { to: '/test-suites', title: 'Suites', art: SuitesArt },
   { to: '/test-runs', title: 'Runs', art: RunsArt },
+  { to: '/flaky-tests', title: 'Flaky Tests', art: FlakyTestsArt },
   { to: '/bugs', title: 'Bugs', art: BugsArt },
   { to: '/reports', title: 'Reports', art: ReportsArt },
   { to: '/settings', title: 'Settings', art: SettingsArt },

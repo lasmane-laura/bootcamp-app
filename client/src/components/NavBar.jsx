@@ -7,6 +7,7 @@ const NAV_ITEMS = [
   { to: '/test-cases', label: 'Test Cases' },
   { to: '/test-suites', label: 'Suites' },
   { to: '/test-runs', label: 'Runs' },
+  { to: '/flaky-tests', label: 'Flaky Tests' },
   { to: '/bugs', label: 'Bugs' },
   { to: '/reports', label: 'Reports' },
   { to: '/settings', label: 'Settings' },

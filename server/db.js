@@ -83,6 +83,8 @@ db.exec(`
     UNIQUE (run_id, test_case_id)
   );
 
+  CREATE INDEX IF NOT EXISTS idx_test_run_results_test_case ON test_run_results(test_case_id);
+
   CREATE TABLE IF NOT EXISTS reports (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     run_id INTEGER NOT NULL REFERENCES test_runs_v2(id) ON DELETE CASCADE,

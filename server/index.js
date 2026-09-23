@@ -21,6 +21,7 @@ const bugsRouter = require('./routes/bugs');
 const bugAttachmentsRouter = require('./routes/bug-attachments');
 const testRunsRouter = require('./routes/test-runs');
 const dashboardRouter = require('./routes/dashboard');
+const flakyTestsRouter = require('./routes/flaky-tests');
 const reportsRouter = require('./routes/reports');
 const settingsRouter = require('./routes/settings');
 
@@ -40,6 +41,7 @@ app.use('/api/bugs/:bugId/attachments', bugAttachmentsRouter);
 app.use('/api/bugs', bugsRouter);
 app.use('/api/test-runs', testRunsRouter);
 app.use('/api/dashboard', dashboardRouter);
+app.use('/api/flaky-tests', flakyTestsRouter);
 app.use('/api/reports', reportsRouter);
 app.use('/api/settings', settingsRouter);
 
