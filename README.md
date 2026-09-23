@@ -46,28 +46,27 @@ This app is deployed to **[Render](https://render.com)** as a single free "Web S
 
 ### One-time prerequisite: push this repo to GitHub
 
-Render's CLI/Blueprint deploy needs to clone your code from GitHub (or GitLab/Bitbucket) — it can't reach this repo's current private remote (`code.tdlbox.com`). Create a new repo on GitHub and push this code there first:
+Render's CLI/Blueprint deploy needs to clone your code from GitHub (or GitLab/Bitbucket) — it can't reach this repo's original private remote (`code.tdlbox.com`). Create a public repo on GitHub and push this code there first:
 
 ```bash
-git remote add github https://github.com/<your-username>/<repo-name>.git
-git push github main
+brew install gh && gh auth login --web && gh repo create bootcamp-app --public --source=. --remote=github --push
 ```
 
 (If Render says it can't access the repo when you run the command below, connect your GitHub account once at https://dashboard.render.com/settings#git, then re-run it.)
 
 ### The command to finish the deploy
 
-Run this in your own terminal, from the repo root, after pushing to GitHub:
+Install the Render CLI (now in Homebrew core — no tap needed), log in, and create the service:
 
 ```bash
-brew install render-oss/render/render && render login && render services create --name qa-command-center --type web --runtime node --repo https://github.com/<your-username>/<repo-name> --branch main --plan free --region oregon --build-command "npm install && npm run build" --start-command "npm start" --env-var "NODE_ENV=production"
+brew install render && render login && render workspace set && render services create --name qa-command-center --type web_service --runtime node --repo https://github.com/<your-username>/bootcamp-app --branch main --plan free --region oregon --build-command "npm install --include=dev && npm run build" --start-command "npm start" --env-var "NODE_ENV=production"
 ```
 
-(The `brew install` step installs the official Render CLI — one-time, skip it if you already have `render` on your PATH.)
-
 - `login` opens your browser to sign in (or create a free account) — do that part when prompted.
-- `services create` then provisions and deploys the service non-interactively.
-- Once it finishes, your app is live at `https://qa-command-center.onrender.com` (Render appends a random suffix instead if that exact name is already taken by someone else — the real URL is printed in the command's output and in the Render dashboard).
+- `workspace set` picks the Render account/workspace to deploy into (shows a picker if you belong to more than one).
+- `services create` then provisions and builds the service. `--include=dev` on the build command matters: Render sets `NODE_ENV=production` during the build too, and npm skips `devDependencies` (which is where `vite` lives) under that env var by default — without this flag the build fails with `vite: not found`.
+- Check build/deploy progress with `render deploys list <service-id>` (the service ID is printed by `services create`, e.g. `srv-xxxxxxxx`).
+- Once live, your app is at `https://qa-command-center.onrender.com` (Render appends a random suffix instead if that exact name is already taken by someone else — check the Render dashboard or `render services -o json` if the plain URL 404s).
 - If you want the Discord alert feature, add `DISCORD_WEBHOOK_URL` as a secret env var in the service's dashboard afterward (it's deliberately left out of the command above so the real webhook URL never ends up in your shell history).
 
 Paste that final `https://...onrender.com` URL back here when it's done.
