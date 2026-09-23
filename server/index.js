@@ -11,6 +11,7 @@ const seed = require('./seed');
 const seedSuites = require('./seed-suites');
 const seedBugs = require('./seed-bugs');
 const seedTestRuns = require('./seed-test-runs');
+const seedExtraTestRuns = require('./seed-test-runs-extra');
 const seedReports = require('./seed-reports');
 const seedSettings = require('./seed-settings');
 const testCasesRouter = require('./routes/test-cases');
@@ -46,6 +47,7 @@ seed();
 seedSuites();
 seedBugs();
 seedTestRuns();
+seedExtraTestRuns();
 seedReports();
 seedSettings();
 
