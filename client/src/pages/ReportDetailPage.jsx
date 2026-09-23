@@ -42,12 +42,12 @@ function ReportDetailPage() {
     }
   }
 
-  if (loading) return <div style={{ padding: '2rem' }}>Loading...</div>;
-  if (error && !report) return <div style={{ padding: '2rem', color: '#a01c1c' }}>{error}</div>;
+  if (loading) return <div >Loading...</div>;
+  if (error && !report) return <div style={{ color: 'var(--danger)' }}>{error}</div>;
   if (!report) return null;
 
   return (
-    <div style={{ fontFamily: 'sans-serif', padding: '2rem', maxWidth: '900px', margin: '0 auto' }}>
+    <div>
       <p>
         <Link to="/reports">← Back to reports</Link>
       </p>
@@ -55,27 +55,23 @@ function ReportDetailPage() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem' }}>
         <div>
           <h1 style={{ marginBottom: '0.25rem' }}>Report for {report.suiteName}</h1>
-          <p style={{ color: '#777', fontSize: '0.85rem', marginTop: 0 }}>
+          <p style={{ color: 'var(--muted)', fontSize: '0.85rem', marginTop: 0 }}>
             Run date {new Date(report.runDate).toLocaleString()} &middot; Generated {new Date(report.generatedAt).toLocaleString()}
           </p>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
-          <a
-            href={reportHtmlExportUrl(report.id)}
-            download={`report-${report.id}.html`}
-            style={{ padding: '0.4rem 0.8rem', border: '1px solid #ccc', borderRadius: '4px', textDecoration: 'none', color: '#222' }}
-          >
+          <a href={reportHtmlExportUrl(report.id)} download={`report-${report.id}.html`} className="btn-secondary">
             Download HTML
           </a>
-          <button disabled={printing} onClick={handlePrint}>
+          <button className="btn-secondary" disabled={printing} onClick={handlePrint}>
             Print / Save as PDF
           </button>
         </div>
       </div>
 
-      {error && <p style={{ color: '#a01c1c' }}>{error}</p>}
+      {error && <p style={{ color: 'var(--danger)' }}>{error}</p>}
 
-      <p style={{ color: '#555' }}>
+      <p style={{ color: 'var(--muted)' }}>
         Total: <strong>{report.totalCount}</strong> &middot; Passed:{' '}
         <strong style={{ color: RESULT_COLORS.passed }}>{report.passedCount}</strong> &middot; Failed:{' '}
         <strong style={{ color: RESULT_COLORS.failed }}>{report.failedCount}</strong> &middot; Skipped:{' '}
@@ -92,7 +88,7 @@ function ReportDetailPage() {
                 {r.result}
               </span>
             </div>
-            {r.notes && <p style={{ color: '#555', fontSize: '0.85rem', margin: '0.5rem 0 0' }}>{r.notes}</p>}
+            {r.notes && <p style={{ color: 'var(--muted)', fontSize: '0.85rem', margin: '0.5rem 0 0' }}>{r.notes}</p>}
           </li>
         ))}
       </ul>

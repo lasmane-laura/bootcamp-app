@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { getBug, updateBug, deleteBug, changeBugStatus, addBugComment } from '../api/bugs';
+import { getBug, updateBug, deleteBug, changeBugStatus, addBugComment, bugAttachmentUrl } from '../api/bugs';
 import SeverityBadge from '../components/SeverityBadge';
 import PriorityBadge from '../components/PriorityBadge';
 import BugForm from '../components/BugForm';
+import Select from '../components/Select';
 
 const TRANSITIONS = {
   open: ['in-progress', 'closed'],
@@ -87,14 +88,14 @@ function BugDetailPage() {
     }
   }
 
-  if (loading) return <div style={{ padding: '2rem' }}>Loading...</div>;
-  if (error && !bug) return <div style={{ padding: '2rem', color: '#a01c1c' }}>{error}</div>;
+  if (loading) return <div >Loading...</div>;
+  if (error && !bug) return <div style={{ color: 'var(--danger)' }}>{error}</div>;
   if (!bug) return null;
 
   const options = TRANSITIONS[bug.status] || [];
 
   return (
-    <div style={{ fontFamily: 'sans-serif', padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
+    <div>
       <p>
         <Link to="/bugs">← Back to bugs</Link>
       </p>
@@ -102,8 +103,10 @@ function BugDetailPage() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <h1 style={{ marginBottom: '0.25rem' }}>{bug.title}</h1>
         <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
-          <button onClick={() => setEditing(true)}>Edit</button>
-          <button onClick={handleDelete} disabled={busy}>
+          <button className="btn-secondary" onClick={() => setEditing(true)}>
+            Edit
+          </button>
+          <button className="btn-secondary" onClick={handleDelete} disabled={busy}>
             Delete
           </button>
         </div>
@@ -111,10 +114,10 @@ function BugDetailPage() {
       <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '1rem' }}>
         <SeverityBadge severity={bug.severity} />
         <PriorityBadge priority={bug.priority} />
-        <span style={{ color: '#555' }}>{bug.status}</span>
+        <span style={{ color: 'var(--muted)' }}>{bug.status}</span>
       </div>
 
-      {error && <p style={{ color: '#a01c1c' }}>{error}</p>}
+      {error && <p style={{ color: 'var(--danger)' }}>{error}</p>}
 
       <section style={sectionStyle}>
         <h3 style={sectionHeadingStyle}>Description</h3>
@@ -148,30 +151,59 @@ function BugDetailPage() {
         </section>
       )}
 
-      <section style={{ ...sectionStyle, background: '#f9f9f9', padding: '1rem', borderRadius: '6px' }}>
+      {bug.attachments && bug.attachments.length > 0 && (
+        <section style={sectionStyle}>
+          <h3 style={sectionHeadingStyle}>Evidence</h3>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {bug.attachments.map((a) => (
+              <li key={a.id} style={attachmentRowStyle}>
+                {a.kind === 'image' ? (
+                  <img
+                    src={bugAttachmentUrl(bug.id, a.id)}
+                    alt={a.filename}
+                    style={{ width: '36px', height: '36px', objectFit: 'cover', borderRadius: '4px', flexShrink: 0 }}
+                  />
+                ) : (
+                  <span aria-hidden="true" style={{ fontSize: '1.2rem', flexShrink: 0 }}>{a.kind === 'video' ? '🎬' : '📄'}</span>
+                )}
+                <a href={bugAttachmentUrl(bug.id, a.id)} target="_blank" rel="noreferrer">
+                  {a.filename}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <section style={{ ...sectionStyle, background: 'var(--input-bg)', border: '1px solid var(--border)', padding: '1rem', borderRadius: '6px' }}>
         <h3 style={sectionHeadingStyle}>Change status</h3>
         {options.length === 0 ? (
-          <p style={{ color: '#777', margin: 0 }}>No further transitions available from "{bug.status}".</p>
+          <p style={{ color: 'var(--muted)', margin: 0 }}>No further transitions available from "{bug.status}".</p>
         ) : (
           <form onSubmit={handleChangeStatus} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <select value={nextStatus} onChange={(e) => setNextStatus(e.target.value)} style={{ padding: '0.4rem' }}>
+              <Select
+                aria-label="Change status to"
+                value={nextStatus}
+                onChange={(e) => setNextStatus(e.target.value)}
+                wrapStyle={{ flex: 1 }}
+              >
                 <option value="">Change status to...</option>
                 {options.map((s) => (
                   <option key={s} value={s}>
                     {s}
                   </option>
                 ))}
-              </select>
-              <button type="submit" disabled={!nextStatus || busy}>
+              </Select>
+              <button type="submit" className="btn-primary" disabled={!nextStatus || busy}>
                 Update status
               </button>
             </div>
             <input
+              aria-label="Optional note about this status change"
               placeholder="Optional note about this change..."
               value={statusMessage}
               onChange={(e) => setStatusMessage(e.target.value)}
-              style={{ padding: '0.4rem' }}
             />
           </form>
         )}
@@ -181,17 +213,18 @@ function BugDetailPage() {
         <h3 style={sectionHeadingStyle}>Activity</h3>
         <form onSubmit={handleAddComment} style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
           <input
+            aria-label="Add a comment"
             placeholder="Add a comment..."
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}
-            style={{ flex: 1, padding: '0.4rem' }}
+            style={{ flex: 1 }}
           />
-          <button type="submit" disabled={!commentText.trim() || busy}>
+          <button type="submit" className="btn-primary" disabled={!commentText.trim() || busy}>
             Comment
           </button>
         </form>
 
-        {bug.activity.length === 0 && <p style={{ color: '#777' }}>No activity yet.</p>}
+        {bug.activity.length === 0 && <p style={{ color: 'var(--muted)' }}>No activity yet.</p>}
         <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
           {bug.activity.map((a) => (
             <li key={a.id} style={activityItemStyle}>
@@ -203,7 +236,7 @@ function BugDetailPage() {
               ) : (
                 <p style={{ margin: 0 }}>{a.message}</p>
               )}
-              <span style={{ color: '#999', fontSize: '0.8rem' }}>{new Date(a.createdAt).toLocaleString()}</span>
+              <span style={{ color: 'var(--muted)', fontSize: '0.8rem' }}>{new Date(a.createdAt).toLocaleString()}</span>
             </li>
           ))}
         </ul>
@@ -215,13 +248,20 @@ function BugDetailPage() {
 }
 
 const sectionStyle = { marginBottom: '1.25rem' };
-const sectionHeadingStyle = { margin: '0 0 0.25rem', fontSize: '0.9rem', textTransform: 'uppercase', color: '#777' };
+const sectionHeadingStyle = { margin: '0 0 0.25rem', fontSize: '0.9rem', textTransform: 'uppercase', color: 'var(--muted)' };
 const activityItemStyle = {
   padding: '0.6rem 0',
   borderBottom: '1px solid #eee',
   display: 'flex',
   flexDirection: 'column',
   gap: '0.15rem',
+};
+const attachmentRowStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '0.5rem',
+  padding: '0.4rem 0',
+  borderBottom: '1px solid #eee',
 };
 
 export default BugDetailPage;

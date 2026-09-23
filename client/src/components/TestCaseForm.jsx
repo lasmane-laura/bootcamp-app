@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Dialog from './Dialog';
+import Select from './Select';
 
 const SEVERITIES = ['Critical', 'Major', 'Minor', 'Trivial'];
 const STATUSES = ['draft', 'ready', 'passed', 'failed', 'skipped'];
@@ -37,58 +38,60 @@ function TestCaseForm({ initial, onSubmit, onCancel }) {
   }
 
   return (
-    <Dialog onClose={onCancel} style={{ background: '#fff' }}>
+    <Dialog onClose={onCancel}>
       <h2 style={{ marginTop: 0 }}>{initial ? 'Edit test case' : 'New test case'}</h2>
       <form onSubmit={handleSubmit}>
         <div style={fieldStyle}>
-          <label>Title *</label>
-          <input value={title} onChange={(e) => setTitle(e.target.value)} />
+          <label htmlFor="tc-title">Title *</label>
+          <input id="tc-title" value={title} onChange={(e) => setTitle(e.target.value)} />
         </div>
 
         <div style={fieldStyle}>
-          <label>Preconditions</label>
-          <textarea rows={2} value={preconditions} onChange={(e) => setPreconditions(e.target.value)} />
+          <label htmlFor="tc-preconditions">Preconditions</label>
+          <textarea id="tc-preconditions" rows={2} value={preconditions} onChange={(e) => setPreconditions(e.target.value)} />
         </div>
 
         <div style={fieldStyle}>
-          <label>Steps * (one per line)</label>
-          <textarea rows={4} value={stepsText} onChange={(e) => setStepsText(e.target.value)} />
+          <label htmlFor="tc-steps">Steps * (one per line)</label>
+          <textarea id="tc-steps" rows={4} value={stepsText} onChange={(e) => setStepsText(e.target.value)} />
         </div>
 
         <div style={fieldStyle}>
-          <label>Expected result *</label>
-          <textarea rows={2} value={expectedResult} onChange={(e) => setExpectedResult(e.target.value)} />
+          <label htmlFor="tc-expected">Expected result *</label>
+          <textarea id="tc-expected" rows={2} value={expectedResult} onChange={(e) => setExpectedResult(e.target.value)} />
         </div>
 
         <div style={fieldStyle}>
-          <label>Severity *</label>
-          <select style={selectStyle} value={severity} onChange={(e) => setSeverity(e.target.value)}>
+          <label htmlFor="tc-severity">Severity *</label>
+          <Select id="tc-severity" value={severity} onChange={(e) => setSeverity(e.target.value)}>
             {SEVERITIES.map((s) => (
               <option key={s} value={s}>
                 {s}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
 
         <div style={fieldStyle}>
-          <label>Status</label>
-          <select style={selectStyle} value={status} onChange={(e) => setStatus(e.target.value)}>
+          <label htmlFor="tc-status">Status</label>
+          <Select id="tc-status" value={status} onChange={(e) => setStatus(e.target.value)}>
             {STATUSES.map((s) => (
               <option key={s} value={s}>
                 {s}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
 
-        {error && <p style={{ color: '#a01c1c' }}>{error}</p>}
+        {error && <p style={{ color: 'var(--danger)' }}>{error}</p>}
 
         <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', marginTop: '1rem' }}>
-          <button type="button" onClick={onCancel}>
+          <button type="button" className="btn-secondary" onClick={onCancel}>
             Cancel
           </button>
-          <button type="submit">Save</button>
+          <button type="submit" className="btn-primary">
+            Save
+          </button>
         </div>
       </form>
     </Dialog>
@@ -100,12 +103,6 @@ const fieldStyle = {
   flexDirection: 'column',
   gap: '0.25rem',
   marginBottom: '0.75rem',
-};
-
-const selectStyle = {
-  padding: '0.6rem 0.75rem',
-  fontSize: '1.05rem',
-  height: '2.75rem',
 };
 
 export default TestCaseForm;

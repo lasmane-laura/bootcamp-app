@@ -1,5 +1,6 @@
 const express = require('express');
 const db = require('../db');
+const { getAttachments } = require('./bug-attachments');
 
 const router = express.Router();
 
@@ -124,7 +125,11 @@ function handleListBugs(req, res) {
 function handleGetBug(req, res) {
   const row = db.prepare('SELECT * FROM bugs WHERE id = ?').get(req.params.id);
   if (!row) return res.status(404).json({ success: false, data: null, error: 'Bug not found' });
-  res.json({ success: true, data: { ...serializeBug(row), activity: getActivity(req.params.id) }, error: null });
+  res.json({
+    success: true,
+    data: { ...serializeBug(row), activity: getActivity(req.params.id), attachments: getAttachments(req.params.id) },
+    error: null,
+  });
 }
 
 function handleCreateBug(req, res) {
@@ -153,7 +158,7 @@ function handleCreateBug(req, res) {
     );
 
   const row = db.prepare('SELECT * FROM bugs WHERE id = ?').get(result.lastInsertRowid);
-  res.status(201).json({ success: true, data: { ...serializeBug(row), activity: [] }, error: null });
+  res.status(201).json({ success: true, data: { ...serializeBug(row), activity: [], attachments: [] }, error: null });
 }
 
 function handleUpdateBug(req, res) {
@@ -192,7 +197,11 @@ function handleUpdateBug(req, res) {
   );
 
   const row = db.prepare('SELECT * FROM bugs WHERE id = ?').get(req.params.id);
-  res.json({ success: true, data: { ...serializeBug(row), activity: getActivity(req.params.id) }, error: null });
+  res.json({
+    success: true,
+    data: { ...serializeBug(row), activity: getActivity(req.params.id), attachments: getAttachments(req.params.id) },
+    error: null,
+  });
 }
 
 function handleDeleteBug(req, res) {
@@ -231,7 +240,11 @@ function handleChangeStatus(req, res) {
   applyTransition();
 
   const row = db.prepare('SELECT * FROM bugs WHERE id = ?').get(req.params.id);
-  res.json({ success: true, data: { ...serializeBug(row), activity: getActivity(req.params.id) }, error: null });
+  res.json({
+    success: true,
+    data: { ...serializeBug(row), activity: getActivity(req.params.id), attachments: getAttachments(req.params.id) },
+    error: null,
+  });
 }
 
 function handleAddComment(req, res) {

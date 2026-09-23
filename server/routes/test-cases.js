@@ -1,4 +1,5 @@
 const express = require('express');
+const { stringify } = require('csv-stringify/sync');
 const db = require('../db');
 
 const router = express.Router();
@@ -49,15 +50,13 @@ function validate(body, { partial = false } = {}) {
   return errors;
 }
 
-function handleListTestCases(req, res) {
-  const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
-  const pageSize = Math.max(parseInt(req.query.pageSize, 10) || 20, 1);
-  const status = req.query.status;
-  const severity = req.query.severity;
-  const search = (req.query.search || '').trim();
+function getFilteredSortedTestCases(query) {
+  const status = query.status;
+  const severity = query.severity;
+  const search = (query.search || '').trim();
   const SORTABLE = ['title', 'severity', 'status', 'updated_at'];
-  const sortBy = SORTABLE.includes(req.query.sortBy) ? req.query.sortBy : 'updated_at';
-  const sortDir = req.query.sortDir === 'asc' ? 'asc' : 'desc';
+  const sortBy = SORTABLE.includes(query.sortBy) ? query.sortBy : 'updated_at';
+  const sortDir = query.sortDir === 'asc' ? 'asc' : 'desc';
 
   let rows = db.prepare('SELECT * FROM test_cases').all();
 
@@ -86,11 +85,35 @@ function handleListTestCases(req, res) {
     return sortDir === 'asc' ? cmp : -cmp;
   });
 
+  return rows;
+}
+
+function handleListTestCases(req, res) {
+  const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+  const pageSize = Math.max(parseInt(req.query.pageSize, 10) || 20, 1);
+
+  const rows = getFilteredSortedTestCases(req.query);
+
   const total = rows.length;
   const start = (page - 1) * pageSize;
   const items = rows.slice(start, start + pageSize).map(serialize);
 
   res.json({ success: true, data: { items, total, page, pageSize }, error: null });
+}
+
+const EXPORT_COLUMNS = ['id', 'title', 'preconditions', 'steps', 'expectedResult', 'severity', 'status', 'createdAt', 'updatedAt'];
+
+function handleExportTestCases(req, res) {
+  const records = getFilteredSortedTestCases(req.query)
+    .map(serialize)
+    .map((tc) => ({ ...tc, steps: tc.steps.join('\n') }));
+
+  const csvBody = stringify(records, { header: true, columns: EXPORT_COLUMNS, bom: true });
+  const filename = `test-cases-${new Date().toISOString().slice(0, 10)}.csv`;
+
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+  res.send(csvBody);
 }
 
 function handleGetTestCase(req, res) {
@@ -151,9 +174,14 @@ function handleDeleteTestCase(req, res) {
 }
 
 router.get('/', handleListTestCases);
+router.get('/export', handleExportTestCases);
 router.get('/:id', handleGetTestCase);
 router.post('/', handleCreateTestCase);
 router.put('/:id', handleUpdateTestCase);
 router.delete('/:id', handleDeleteTestCase);
+
+router.validate = validate;
+router.SEVERITIES = SEVERITIES;
+router.STATUSES = STATUSES;
 
 module.exports = router;

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Dialog from './Dialog';
+import Select from './Select';
 
 const STATUSES = ['draft', 'ready', 'in-progress', 'passed', 'failed'];
 
@@ -21,37 +22,39 @@ function SuiteForm({ initial, onSubmit, onCancel }) {
   }
 
   return (
-    <Dialog onClose={onCancel} style={{ background: '#fff' }}>
+    <Dialog onClose={onCancel}>
       <h2 style={{ marginTop: 0 }}>{initial ? 'Edit suite' : 'New suite'}</h2>
       <form onSubmit={handleSubmit}>
         <div style={fieldStyle}>
-          <label>Name *</label>
-          <input value={name} onChange={(e) => setName(e.target.value)} />
+          <label htmlFor="suite-name">Name *</label>
+          <input id="suite-name" value={name} onChange={(e) => setName(e.target.value)} />
         </div>
 
         <div style={fieldStyle}>
-          <label>Feature *</label>
-          <input placeholder="e.g. login" value={feature} onChange={(e) => setFeature(e.target.value)} />
+          <label htmlFor="suite-feature">Feature *</label>
+          <input id="suite-feature" placeholder="e.g. login" value={feature} onChange={(e) => setFeature(e.target.value)} />
         </div>
 
         <div style={fieldStyle}>
-          <label>Status</label>
-          <select style={selectStyle} value={status} onChange={(e) => setStatus(e.target.value)}>
+          <label htmlFor="suite-status">Status</label>
+          <Select id="suite-status" value={status} onChange={(e) => setStatus(e.target.value)}>
             {STATUSES.map((s) => (
               <option key={s} value={s}>
                 {s}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
 
-        {error && <p style={{ color: '#a01c1c' }}>{error}</p>}
+        {error && <p style={{ color: 'var(--danger)' }}>{error}</p>}
 
         <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', marginTop: '1rem' }}>
-          <button type="button" onClick={onCancel}>
+          <button type="button" className="btn-secondary" onClick={onCancel}>
             Cancel
           </button>
-          <button type="submit">Save</button>
+          <button type="submit" className="btn-primary">
+            Save
+          </button>
         </div>
       </form>
     </Dialog>
@@ -63,12 +66,6 @@ const fieldStyle = {
   flexDirection: 'column',
   gap: '0.25rem',
   marginBottom: '0.75rem',
-};
-
-const selectStyle = {
-  padding: '0.6rem 0.75rem',
-  fontSize: '1.05rem',
-  height: '2.75rem',
 };
 
 export default SuiteForm;

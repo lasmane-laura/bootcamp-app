@@ -83,6 +83,68 @@ function getRecentActivity() {
     });
 }
 
+const TEST_CASE_STATUSES = ['draft', 'ready', 'passed', 'failed', 'skipped'];
+const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+
+function getPassRateTrend() {
+  const rows = db
+    .prepare(
+      `SELECT tr.id, tr.start_time, tr.pass_count, tr.fail_count, s.name AS suite_name
+       FROM test_runs_v2 tr
+       JOIN suites s ON s.id = tr.suite_id
+       ORDER BY tr.start_time DESC
+       LIMIT 10`
+    )
+    .all();
+
+  return rows.reverse().map((r) => {
+    const decided = r.pass_count + r.fail_count;
+    return {
+      runId: r.id,
+      suiteName: r.suite_name,
+      date: r.start_time,
+      passRate: decided > 0 ? Math.round((r.pass_count / decided) * 1000) / 10 : null,
+    };
+  });
+}
+
+function getBugsPerWeek() {
+  const now = Date.now();
+  const weeks = [];
+  for (let i = 7; i >= 0; i--) {
+    const weekEnd = now - i * WEEK_MS;
+    const weekStart = weekEnd - WEEK_MS;
+    weeks.push({ weekStart, weekEnd, opened: 0, closed: 0 });
+  }
+
+  function bucketFor(timestamp) {
+    return weeks.find((w) => timestamp >= w.weekStart && timestamp < w.weekEnd);
+  }
+
+  db.prepare('SELECT created_at FROM bugs').all().forEach((b) => {
+    const bucket = bucketFor(new Date(b.created_at).getTime());
+    if (bucket) bucket.opened++;
+  });
+
+  db.prepare(`SELECT created_at FROM bug_activity WHERE action = 'status_change' AND new_value = 'closed'`)
+    .all()
+    .forEach((c) => {
+      const bucket = bucketFor(new Date(c.created_at).getTime());
+      if (bucket) bucket.closed++;
+    });
+
+  return weeks.map((w) => ({ weekStart: new Date(w.weekStart).toISOString(), opened: w.opened, closed: w.closed }));
+}
+
+function getTestCoverageByStatus() {
+  const rows = db.prepare('SELECT status, COUNT(*) AS count FROM test_cases GROUP BY status').all();
+  const counts = Object.fromEntries(TEST_CASE_STATUSES.map((s) => [s, 0]));
+  rows.forEach((r) => {
+    if (counts[r.status] !== undefined) counts[r.status] = r.count;
+  });
+  return TEST_CASE_STATUSES.map((status) => ({ status, count: counts[status] }));
+}
+
 function handleGetMetrics(req, res) {
   res.json({
     success: true,
@@ -95,6 +157,19 @@ function handleGetMetrics(req, res) {
   });
 }
 
+function handleGetTrends(req, res) {
+  res.json({
+    success: true,
+    data: {
+      passRateTrend: getPassRateTrend(),
+      bugsPerWeek: getBugsPerWeek(),
+      testCoverageByStatus: getTestCoverageByStatus(),
+    },
+    error: null,
+  });
+}
+
 router.get('/metrics', handleGetMetrics);
+router.get('/trends', handleGetTrends);
 
 module.exports = router;

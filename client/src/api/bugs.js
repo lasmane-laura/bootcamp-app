@@ -58,3 +58,24 @@ export function addBugComment(id, message) {
     body: JSON.stringify({ message }),
   });
 }
+
+async function requestForm(url, formData) {
+  const res = await fetch(url, { method: 'POST', body: formData });
+  const body = await res.json();
+  if (!body.success) throw new Error(body.error || 'Request failed');
+  return body.data;
+}
+
+export function uploadBugAttachment(bugId, file) {
+  const formData = new FormData();
+  formData.append('file', file);
+  return requestForm(`${BASE_URL}/${bugId}/attachments`, formData);
+}
+
+export function deleteBugAttachment(bugId, attachmentId) {
+  return request(`${BASE_URL}/${bugId}/attachments/${attachmentId}`, { method: 'DELETE' });
+}
+
+export function bugAttachmentUrl(bugId, attachmentId) {
+  return `${BASE_URL}/${bugId}/attachments/${attachmentId}`;
+}

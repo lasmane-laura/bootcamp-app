@@ -4,11 +4,15 @@ import { listBugs, createBug } from '../api/bugs';
 import SeverityBadge from '../components/SeverityBadge';
 import PriorityBadge from '../components/PriorityBadge';
 import BugForm from '../components/BugForm';
+import { useSettings } from '../context/SettingsContext';
+import Select from '../components/Select';
+import SearchInput from '../components/SearchInput';
 
 const STATUSES = ['open', 'in-progress', 'resolved', 'closed', 'reopened'];
 const SEVERITIES = ['Critical', 'Major', 'Minor', 'Trivial'];
 
 function BugsPage() {
+  const { settings } = useSettings();
   const [items, setItems] = useState([]);
   const [statusFilter, setStatusFilter] = useState('');
   const [severityFilter, setSeverityFilter] = useState('');
@@ -59,7 +63,16 @@ function BugsPage() {
   function SortArrow({ column }) {
     const active = sortBy === column;
     const symbol = active ? (sortDir === 'asc' ? '▲' : '▼') : '⇅';
-    return <span style={{ marginLeft: '0.35rem', color: active ? '#2563eb' : '#aaa' }}>{symbol}</span>;
+    return (
+      <span aria-hidden="true" style={{ marginLeft: '0.35rem', color: active ? 'var(--link)' : 'var(--muted)' }}>
+        {symbol}
+      </span>
+    );
+  }
+
+  function sortAriaValue(column) {
+    if (sortBy !== column) return 'none';
+    return sortDir === 'asc' ? 'ascending' : 'descending';
   }
 
   async function handleCreate(payload) {
@@ -69,70 +82,83 @@ function BugsPage() {
   }
 
   return (
-    <div style={{ fontFamily: 'sans-serif', padding: '2rem', maxWidth: '1100px', margin: '0 auto' }}>
+    <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
         <h1 style={{ margin: 0 }}>Bugs</h1>
-        <button onClick={() => setFormOpen(true)}>+ New bug</button>
+        <button className="btn-primary" onClick={() => setFormOpen(true)}>
+          + New bug
+        </button>
       </div>
 
       <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
-        <input
+        <SearchInput
+          aria-label="Search title or description"
           placeholder="Search title or description..."
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
-          style={{ flex: 1, padding: '0.4rem' }}
+          wrapStyle={{ flex: 1 }}
         />
-        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+        <Select aria-label="Filter by status" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
           <option value="">All statuses</option>
           {STATUSES.map((s) => (
             <option key={s} value={s}>
               {s}
             </option>
           ))}
-        </select>
-        <select value={severityFilter} onChange={(e) => setSeverityFilter(e.target.value)}>
+        </Select>
+        <Select aria-label="Filter by severity" value={severityFilter} onChange={(e) => setSeverityFilter(e.target.value)}>
           <option value="">All severities</option>
           {SEVERITIES.map((s) => (
             <option key={s} value={s}>
               {s}
             </option>
           ))}
-        </select>
+        </Select>
       </div>
 
-      {error && <p style={{ color: '#a01c1c' }}>{error}</p>}
+      {error && <p style={{ color: 'var(--danger)' }}>{error}</p>}
       {loading && <p>Loading...</p>}
 
       {!loading && !error && (
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ textAlign: 'left', borderBottom: '2px solid #ddd' }}>
-              <th style={{ ...thStyle, cursor: 'pointer' }} onClick={() => toggleSort('title')}>
-                Title
-                <SortArrow column="title" />
+              <th style={thStyle} aria-sort={sortAriaValue('title')}>
+                <button type="button" style={sortButtonStyle} onClick={() => toggleSort('title')}>
+                  Title
+                  <SortArrow column="title" />
+                </button>
               </th>
-              <th style={{ ...thStyle, cursor: 'pointer' }} onClick={() => toggleSort('severity')}>
-                Severity
-                <SortArrow column="severity" />
+              <th style={thStyle} aria-sort={sortAriaValue('severity')}>
+                <button type="button" style={sortButtonStyle} onClick={() => toggleSort('severity')}>
+                  Severity
+                  <SortArrow column="severity" />
+                </button>
               </th>
-              <th style={{ ...thStyle, cursor: 'pointer' }} onClick={() => toggleSort('priority')}>
-                Priority
-                <SortArrow column="priority" />
+              <th style={thStyle} aria-sort={sortAriaValue('priority')}>
+                <button type="button" style={sortButtonStyle} onClick={() => toggleSort('priority')}>
+                  Priority
+                  <SortArrow column="priority" />
+                </button>
               </th>
-              <th style={{ ...thStyle, cursor: 'pointer' }} onClick={() => toggleSort('status')}>
-                Status
-                <SortArrow column="status" />
+              <th style={thStyle} aria-sort={sortAriaValue('status')}>
+                <button type="button" style={sortButtonStyle} onClick={() => toggleSort('status')}>
+                  Status
+                  <SortArrow column="status" />
+                </button>
               </th>
-              <th style={{ ...thStyle, cursor: 'pointer' }} onClick={() => toggleSort('updatedAt')}>
-                Updated
-                <SortArrow column="updatedAt" />
+              <th style={thStyle} aria-sort={sortAriaValue('updatedAt')}>
+                <button type="button" style={sortButtonStyle} onClick={() => toggleSort('updatedAt')}>
+                  Updated
+                  <SortArrow column="updatedAt" />
+                </button>
               </th>
             </tr>
           </thead>
           <tbody>
             {items.length === 0 && (
               <tr>
-                <td colSpan={5} style={{ padding: '1rem', color: '#777' }}>
+                <td colSpan={5} style={{ padding: '1rem', color: 'var(--muted)' }}>
                   No bugs found.
                 </td>
               </tr>
@@ -156,12 +182,30 @@ function BugsPage() {
         </table>
       )}
 
-      {formOpen && <BugForm onSubmit={handleCreate} onCancel={() => setFormOpen(false)} />}
+      {formOpen && (
+        <BugForm
+          onSubmit={handleCreate}
+          onCancel={() => setFormOpen(false)}
+          defaultSeverity={settings?.defaultSeverityForNewBugs}
+        />
+      )}
     </div>
   );
 }
 
 const thStyle = { padding: '0.5rem' };
 const tdStyle = { padding: '0.5rem' };
+
+const sortButtonStyle = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  background: 'none',
+  border: 'none',
+  padding: 0,
+  font: 'inherit',
+  fontWeight: 'inherit',
+  color: 'inherit',
+  cursor: 'pointer',
+};
 
 export default BugsPage;

@@ -1,5 +1,16 @@
 const db = require('./db');
 
+const RUN_PLAN = [
+  { daysAgo: 20, outcomes: ['failed', 'failed', 'passed'] },
+  { daysAgo: 17, outcomes: ['failed', 'passed', 'passed'] },
+  { daysAgo: 14, outcomes: ['passed', 'passed', 'passed'] },
+  { daysAgo: 11, outcomes: ['passed', 'failed', 'passed'] },
+  { daysAgo: 8, outcomes: ['failed', 'failed', 'passed'] },
+  { daysAgo: 6, outcomes: ['passed', 'passed', 'skipped'] },
+  { daysAgo: 3, outcomes: ['passed', 'failed', 'passed'] },
+  { daysAgo: 1, outcomes: ['passed', 'failed', 'skipped'] },
+];
+
 function seedTestRuns() {
   const { count } = db.prepare('SELECT COUNT(*) AS count FROM test_runs_v2').get();
   if (count > 0) {
@@ -29,46 +40,49 @@ function seedTestRuns() {
     .all(suite.id)
     .map((r) => r.test_case_id);
 
-  const now = new Date();
-  const startTime = new Date(now.getTime() - 3600 * 1000).toISOString();
-  const endTime = new Date(now.getTime() - 3300 * 1000).toISOString();
-
-  const runResult = db
-    .prepare('INSERT INTO test_runs_v2 (suite_id, status, start_time, end_time, created_by) VALUES (?, ?, ?, ?, ?)')
-    .run(suite.id, 'completed', startTime, endTime, 'seed');
-  const runId = runResult.lastInsertRowid;
-
-  const OUTCOMES = ['passed', 'failed', 'skipped'];
+  const insertRun = db.prepare(
+    'INSERT INTO test_runs_v2 (suite_id, status, start_time, end_time, created_by) VALUES (?, ?, ?, ?, ?)'
+  );
   const insertResult = db.prepare(
     'INSERT INTO test_run_results (run_id, test_case_id, result, notes, failed_at, alert_sent) VALUES (?, ?, ?, ?, ?, ?)'
   );
 
-  let passCount = 0;
-  let failCount = 0;
-  let skipCount = 0;
+  const now = Date.now();
 
-  suiteCases.forEach((testCaseId, i) => {
-    const outcome = OUTCOMES[i % OUTCOMES.length];
-    if (outcome === 'passed') {
-      passCount++;
-      insertResult.run(runId, testCaseId, 'passed', null, null, 0);
-    } else if (outcome === 'failed') {
-      failCount++;
-      insertResult.run(runId, testCaseId, 'failed', 'Reproduced consistently; see bug tracker.', endTime, 1);
-    } else {
-      skipCount++;
-      insertResult.run(runId, testCaseId, 'skipped', 'Skipped for this run — blocked by environment setup.', null, 0);
-    }
+  RUN_PLAN.forEach(({ daysAgo, outcomes }) => {
+    const startTime = new Date(now - daysAgo * 24 * 3600 * 1000).toISOString();
+    const endTime = new Date(now - daysAgo * 24 * 3600 * 1000 + 300 * 1000).toISOString();
+
+    const runResult = insertRun.run(suite.id, 'completed', startTime, endTime, 'seed');
+    const runId = runResult.lastInsertRowid;
+
+    let passCount = 0;
+    let failCount = 0;
+    let skipCount = 0;
+
+    suiteCases.forEach((testCaseId, i) => {
+      const outcome = outcomes[i % outcomes.length];
+      if (outcome === 'passed') {
+        passCount++;
+        insertResult.run(runId, testCaseId, 'passed', null, null, 0);
+      } else if (outcome === 'failed') {
+        failCount++;
+        insertResult.run(runId, testCaseId, 'failed', 'Reproduced consistently; see bug tracker.', endTime, 1);
+      } else {
+        skipCount++;
+        insertResult.run(runId, testCaseId, 'skipped', 'Skipped for this run — blocked by environment setup.', null, 0);
+      }
+    });
+
+    db.prepare('UPDATE test_runs_v2 SET pass_count = ?, fail_count = ?, skip_count = ? WHERE id = ?').run(
+      passCount,
+      failCount,
+      skipCount,
+      runId
+    );
   });
 
-  db.prepare('UPDATE test_runs_v2 SET pass_count = ?, fail_count = ?, skip_count = ? WHERE id = ?').run(
-    passCount,
-    failCount,
-    skipCount,
-    runId
-  );
-
-  console.log(`Seeded 1 test run (run ${runId}) for suite ${suite.id}.`);
+  console.log(`Seeded ${RUN_PLAN.length} test runs for suite ${suite.id}.`);
 }
 
 module.exports = seedTestRuns;

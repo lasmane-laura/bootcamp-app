@@ -95,6 +95,27 @@ db.exec(`
     results TEXT NOT NULL,
     generated_at TEXT NOT NULL
   );
+
+  CREATE TABLE IF NOT EXISTS user_preferences (
+    id INTEGER PRIMARY KEY,
+    theme TEXT NOT NULL DEFAULT 'system' CHECK (theme IN ('light', 'dark', 'system')),
+    default_severity_for_new_bugs TEXT NOT NULL DEFAULT 'Minor' CHECK (default_severity_for_new_bugs IN ('Critical', 'Major', 'Minor', 'Trivial')),
+    default_page_size INTEGER NOT NULL DEFAULT 20 CHECK (default_page_size IN (10, 20, 50, 100)),
+    timezone TEXT,
+    auto_generate_report_after_run INTEGER NOT NULL DEFAULT 1,
+    updated_at TEXT NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS bug_attachments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    bug_id INTEGER NOT NULL REFERENCES bugs(id) ON DELETE CASCADE,
+    filename TEXT NOT NULL,
+    stored_name TEXT NOT NULL,
+    mime_type TEXT NOT NULL,
+    size INTEGER NOT NULL,
+    kind TEXT NOT NULL CHECK (kind IN ('image', 'video', 'text')),
+    created_at TEXT NOT NULL
+  );
 `);
 
 module.exports = db;

@@ -15,10 +15,10 @@ function ReportsPage() {
   }, []);
 
   return (
-    <div style={{ fontFamily: 'sans-serif', padding: '2rem', maxWidth: '900px', margin: '0 auto' }}>
+    <div>
       <h1>Reports</h1>
 
-      {error && <p style={{ color: '#a01c1c' }}>{error}</p>}
+      {error && <p style={{ color: 'var(--danger)' }}>{error}</p>}
       {loading && <p>Loading...</p>}
 
       {!loading && !error && (
@@ -37,7 +37,7 @@ function ReportsPage() {
           <tbody>
             {items.length === 0 && (
               <tr>
-                <td colSpan={7} style={{ padding: '1rem', color: '#777' }}>
+                <td colSpan={7} style={{ padding: '1rem', color: 'var(--muted)' }}>
                   No reports yet.
                 </td>
               </tr>
@@ -49,9 +49,9 @@ function ReportsPage() {
                 </td>
                 <td style={tdStyle}>{new Date(r.runDate).toLocaleString()}</td>
                 <td style={tdStyle}>{r.totalCount}</td>
-                <td style={{ ...tdStyle, color: '#1a7f37' }}>{r.passedCount}</td>
-                <td style={{ ...tdStyle, color: '#a01c1c' }}>{r.failedCount}</td>
-                <td style={{ ...tdStyle, color: '#8a7000' }}>{r.skippedCount}</td>
+                <td style={{ ...tdStyle, color: 'var(--success)' }}>{r.passedCount}</td>
+                <td style={{ ...tdStyle, color: 'var(--danger)' }}>{r.failedCount}</td>
+                <td style={{ ...tdStyle, color: 'var(--warning)' }}>{r.skippedCount}</td>
                 <td style={tdStyle}>{new Date(r.generatedAt).toLocaleString()}</td>
               </tr>
             ))}

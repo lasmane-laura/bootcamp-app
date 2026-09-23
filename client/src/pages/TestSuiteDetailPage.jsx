@@ -5,6 +5,7 @@ import { listTestCases } from '../api/test-cases';
 import { createRun } from '../api/test-runs';
 import SeverityBadge from '../components/SeverityBadge';
 import SuiteForm from '../components/SuiteForm';
+import Select from '../components/Select';
 
 function TestSuiteDetailPage() {
   const { id } = useParams();
@@ -133,14 +134,14 @@ function TestSuiteDetailPage() {
     }
   }
 
-  if (loading) return <div style={{ padding: '2rem' }}>Loading...</div>;
-  if (error && !suite) return <div style={{ padding: '2rem', color: '#a01c1c' }}>{error}</div>;
+  if (loading) return <div >Loading...</div>;
+  if (error && !suite) return <div style={{ color: 'var(--danger)' }}>{error}</div>;
   if (!suite) return null;
 
   const availableCases = allTestCases.filter((tc) => !cases.some((c) => c.id === tc.id));
 
   return (
-    <div style={{ fontFamily: 'sans-serif', padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
+    <div>
       <p>
         <Link to="/test-suites">← Back to test suites</Link>
       </p>
@@ -148,20 +149,24 @@ function TestSuiteDetailPage() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
           <h1 style={{ marginBottom: '0.25rem' }}>{suite.name}</h1>
-          <p style={{ color: '#555', marginTop: 0 }}>
+          <p style={{ color: 'var(--muted)', marginTop: 0 }}>
             Feature: <strong>{suite.feature}</strong> &middot; Status: <strong>{suite.status}</strong>
           </p>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
-          <button onClick={handleNewRun}>+ New run</button>
-          <button onClick={() => setEditingSuite(true)}>Edit suite</button>
+          <button className="btn-primary" onClick={handleNewRun}>
+            + New run
+          </button>
+          <button className="btn-secondary" onClick={() => setEditingSuite(true)}>
+            Edit suite
+          </button>
         </div>
       </div>
 
-      {error && <p style={{ color: '#a01c1c' }}>{error}</p>}
+      {error && <p style={{ color: 'var(--danger)' }}>{error}</p>}
 
       <h2>Cases ({cases.length})</h2>
-      {cases.length === 0 && <p style={{ color: '#777' }}>No cases in this suite yet.</p>}
+      {cases.length === 0 && <p style={{ color: 'var(--muted)' }}>No cases in this suite yet.</p>}
 
       <ul style={{ listStyle: 'none', padding: 0 }}>
         {cases.map((c) => (
@@ -176,7 +181,7 @@ function TestSuiteDetailPage() {
               marginBottom: '0.4rem',
               border: '1px solid #eee',
               borderRadius: '6px',
-              background: draggingId === c.id ? '#f5f5f5' : '#fff',
+              background: draggingId === c.id ? 'rgba(37, 99, 235, 0.12)' : 'var(--bg)',
               userSelect: draggingId !== null ? 'none' : 'auto',
             }}
           >
@@ -195,7 +200,7 @@ function TestSuiteDetailPage() {
               aria-label={`Reorder "${c.title}". Use the up and down arrow keys to move it.`}
               title="Drag to reorder, or focus and use arrow keys"
               style={{
-                color: '#aaa',
+                color: 'var(--muted)',
                 cursor: 'grab',
                 fontSize: '1.1rem',
                 lineHeight: 1,
@@ -208,22 +213,24 @@ function TestSuiteDetailPage() {
             </button>
             <span style={{ flex: 1 }}>{c.title}</span>
             <SeverityBadge severity={c.severity} />
-            <span style={{ color: '#555', minWidth: '70px' }}>{c.status}</span>
-            <button onClick={() => handleRemoveCase(c.id)}>Remove</button>
+            <span style={{ color: 'var(--muted)', minWidth: '70px' }}>{c.status}</span>
+            <button className="btn-secondary" onClick={() => handleRemoveCase(c.id)}>
+              Remove
+            </button>
           </li>
         ))}
       </ul>
 
       <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
-        <select value={selectedCaseId} onChange={(e) => setSelectedCaseId(e.target.value)} style={{ flex: 1, padding: '0.4rem' }}>
+        <Select value={selectedCaseId} onChange={(e) => setSelectedCaseId(e.target.value)} wrapStyle={{ flex: 1 }}>
           <option value="">Select a test case to add...</option>
           {availableCases.map((tc) => (
             <option key={tc.id} value={tc.id}>
               {tc.title}
             </option>
           ))}
-        </select>
-        <button onClick={handleAddCase} disabled={!selectedCaseId}>
+        </Select>
+        <button className="btn-primary" onClick={handleAddCase} disabled={!selectedCaseId}>
           + Add case
         </button>
       </div>

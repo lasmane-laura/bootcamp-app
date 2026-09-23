@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { getDashboardMetrics } from '../api/dashboard';
+import { getDashboardMetrics, getDashboardTrends } from '../api/dashboard';
+import PassRateTrendChart from '../components/charts/PassRateTrendChart';
+import BugsPerWeekChart from '../components/charts/BugsPerWeekChart';
+import TestCoverageDonutChart from '../components/charts/TestCoverageDonutChart';
 
 const REFRESH_INTERVAL_MS = 30000;
 
@@ -26,9 +29,9 @@ function DashboardPage() {
 
   function load() {
     if (!hasLoadedOnce.current) setLoading(true);
-    getDashboardMetrics()
-      .then((result) => {
-        setData(result);
+    Promise.all([getDashboardMetrics(), getDashboardTrends()])
+      .then(([metricsResult, trends]) => {
+        setData({ ...metricsResult, trends });
         setError('');
         hasLoadedOnce.current = true;
       })
@@ -44,7 +47,7 @@ function DashboardPage() {
 
   if (loading && !data) {
     return (
-      <div style={{ fontFamily: 'sans-serif', padding: '2rem', maxWidth: '1000px', margin: '0 auto' }}>
+      <div>
         <h1>Dashboard</h1>
         <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
           {[1, 2, 3, 4].map((i) => (
@@ -59,9 +62,9 @@ function DashboardPage() {
 
   if (error && !data) {
     return (
-      <div style={{ fontFamily: 'sans-serif', padding: '2rem', maxWidth: '1000px', margin: '0 auto' }}>
+      <div>
         <h1>Dashboard</h1>
-        <p style={{ color: '#a01c1c' }}>Failed to load dashboard: {error}</p>
+        <p style={{ color: 'var(--danger)' }}>Failed to load dashboard: {error}</p>
       </div>
     );
   }
@@ -70,12 +73,12 @@ function DashboardPage() {
 
   if (isEmptyDashboard(data)) {
     return (
-      <div style={{ fontFamily: 'sans-serif', padding: '2rem', maxWidth: '1000px', margin: '0 auto' }}>
+      <div>
         <h1>Dashboard</h1>
-        <p style={{ color: '#777', marginBottom: '0.5rem' }}>
+        <p style={{ color: 'var(--muted)', marginBottom: '0.5rem' }}>
           Nothing here yet — this fills in once you've got some data to show.
         </p>
-        <p style={{ color: '#777' }}>
+        <p style={{ color: 'var(--muted)' }}>
           Start with <Link to="/test-cases">creating a test case</Link>, then{' '}
           <Link to="/test-suites">build a suite</Link> and run it, or <Link to="/bugs">log a bug</Link>.
         </p>
@@ -83,14 +86,14 @@ function DashboardPage() {
     );
   }
 
-  const { metrics, recentRuns, recentActivity } = data;
+  const { metrics, recentRuns, recentActivity, trends } = data;
 
   return (
-    <div style={{ fontFamily: 'sans-serif', padding: '2rem', maxWidth: '1000px', margin: '0 auto' }}>
+    <div>
       <h1>Dashboard</h1>
 
       {error && (
-        <p style={{ color: '#a01c1c', fontSize: '0.85rem' }}>
+        <p style={{ color: 'var(--danger)', fontSize: '0.85rem' }}>
           Last refresh failed ({error}) — showing previously loaded data.
         </p>
       )}
@@ -111,9 +114,24 @@ function DashboardPage() {
       </div>
 
       <section style={{ marginBottom: '2rem' }}>
+        <h2>Trends</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1rem' }}>
+          <ChartCard title="Pass rate trend" subtitle="Last 10 test runs">
+            <PassRateTrendChart data={trends.passRateTrend} />
+          </ChartCard>
+          <ChartCard title="Bugs opened vs. closed" subtitle="Last 8 weeks">
+            <BugsPerWeekChart data={trends.bugsPerWeek} />
+          </ChartCard>
+          <ChartCard title="Test coverage by status" subtitle="All test cases">
+            <TestCoverageDonutChart data={trends.testCoverageByStatus} />
+          </ChartCard>
+        </div>
+      </section>
+
+      <section style={{ marginBottom: '2rem' }}>
         <h2>Recent test runs</h2>
         {recentRuns.length === 0 ? (
-          <p style={{ color: '#777' }}>
+          <p style={{ color: 'var(--muted)' }}>
             No test runs yet — <Link to="/test-suites">pick a suite</Link> and start one to see results here.
           </p>
         ) : (
@@ -133,9 +151,9 @@ function DashboardPage() {
                   <td style={tdStyle}>
                     <Link to={`/test-runs/${r.id}`}>{r.suiteName}</Link>
                   </td>
-                  <td style={{ ...tdStyle, color: '#1a7f37' }}>{r.passCount}</td>
-                  <td style={{ ...tdStyle, color: '#a01c1c' }}>{r.failCount}</td>
-                  <td style={{ ...tdStyle, color: '#777' }}>{r.skipCount}</td>
+                  <td style={{ ...tdStyle, color: 'var(--success)' }}>{r.passCount}</td>
+                  <td style={{ ...tdStyle, color: 'var(--danger)' }}>{r.failCount}</td>
+                  <td style={{ ...tdStyle, color: 'var(--muted)' }}>{r.skipCount}</td>
                   <td style={tdStyle}>{new Date(r.startTime).toLocaleString()}</td>
                 </tr>
               ))}
@@ -147,7 +165,7 @@ function DashboardPage() {
       <section>
         <h2>Recent activity</h2>
         {recentActivity.length === 0 ? (
-          <p style={{ color: '#777' }}>
+          <p style={{ color: 'var(--muted)' }}>
             No activity yet — updating a <Link to="/bugs">bug's</Link> status or adding a comment will show up here.
           </p>
         ) : (
@@ -155,7 +173,7 @@ function DashboardPage() {
             {recentActivity.map((a) => (
               <li key={a.id} style={activityItemStyle}>
                 <Link to={`/bugs/${a.bugId}`}>{a.summary}</Link>
-                <span style={{ color: '#999', fontSize: '0.8rem' }}>{new Date(a.createdAt).toLocaleString()}</span>
+                <span style={{ color: 'var(--muted)', fontSize: '0.8rem' }}>{new Date(a.createdAt).toLocaleString()}</span>
               </li>
             ))}
           </ul>
@@ -169,7 +187,18 @@ function MetricCard({ label, value, hint }) {
   return (
     <div style={metricCardStyle} title={hint}>
       <div style={{ fontSize: '1.8rem', fontWeight: 700 }}>{value}</div>
-      <div style={{ color: '#777', fontSize: '0.85rem' }}>{label}</div>
+      <div style={{ color: 'var(--muted)', fontSize: '0.85rem' }}>{label}</div>
+    </div>
+  );
+}
+
+function ChartCard({ title, subtitle, children }) {
+  return (
+    <div style={chartCardStyle}>
+      <h3 style={{ margin: '0 0 0.1rem', fontSize: '1rem' }}>{title}</h3>
+      {/* fixed (not themed) — this card is a light island, see chartCardStyle comment */}
+      <p style={{ margin: '0 0 0.75rem', color: '#767676', fontSize: '0.8rem' }}>{subtitle}</p>
+      {children}
     </div>
   );
 }
@@ -177,9 +206,23 @@ function MetricCard({ label, value, hint }) {
 const metricCardStyle = {
   flex: '1 1 180px',
   padding: '1rem',
+  border: '1px solid var(--border)',
+  borderRadius: '8px',
+  background: 'var(--input-bg)',
+  color: 'var(--text)',
+};
+
+// The trend charts below render assuming a fixed light canvas (axes, gridlines,
+// tooltips) — reworking that for dark mode is a chart-redesign, not a low-hanging
+// fruit fix, so this card is a deliberate "light island": pin dark, readable text
+// on its own white surface instead of inheriting the page's (light-in-dark-mode)
+// text color, which would otherwise go near-invisible on this hardcoded white bg.
+const chartCardStyle = {
+  padding: '1rem',
   border: '1px solid #eee',
   borderRadius: '8px',
-  background: '#fafafa',
+  background: '#fff',
+  color: '#1a1a1a',
 };
 
 const skeletonCardStyle = {

@@ -65,12 +65,12 @@ function TestRunDetailPage() {
     }
   }
 
-  if (loading) return <div style={{ padding: '2rem' }}>Loading...</div>;
-  if (error && !run) return <div style={{ padding: '2rem', color: '#a01c1c' }}>{error}</div>;
+  if (loading) return <div >Loading...</div>;
+  if (error && !run) return <div style={{ color: 'var(--danger)' }}>{error}</div>;
   if (!run) return null;
 
   return (
-    <div style={{ fontFamily: 'sans-serif', padding: '2rem', maxWidth: '900px', margin: '0 auto' }}>
+    <div>
       <p>
         <Link to="/test-runs">← Back to test runs</Link>
       </p>
@@ -79,21 +79,21 @@ function TestRunDetailPage() {
         <h1 style={{ marginBottom: '0.25rem' }}>
           Run for <Link to={`/test-suites/${run.suiteId}`}>{run.suiteName}</Link>
         </h1>
-        <button disabled={generatingReport} onClick={handleGenerateReport} style={{ flexShrink: 0 }}>
+        <button className="btn-secondary" disabled={generatingReport} onClick={handleGenerateReport} style={{ flexShrink: 0 }}>
           Generate report
         </button>
       </div>
-      <p style={{ color: '#555', marginTop: 0 }}>
+      <p style={{ color: 'var(--muted)', marginTop: 0 }}>
         Status: <strong>{run.status}</strong> &middot; Pass: <strong style={{ color: RESULT_COLORS.passed }}>{run.passCount}</strong>{' '}
         &middot; Fail: <strong style={{ color: RESULT_COLORS.failed }}>{run.failCount}</strong> &middot; Skip:{' '}
         <strong style={{ color: RESULT_COLORS.skipped }}>{run.skipCount}</strong>
       </p>
-      <p style={{ color: '#777', fontSize: '0.85rem' }}>
+      <p style={{ color: 'var(--muted)', fontSize: '0.85rem' }}>
         Started {new Date(run.startTime).toLocaleString()}
         {run.endTime ? ` · Ended ${new Date(run.endTime).toLocaleString()}` : ''}
       </p>
 
-      {error && <p style={{ color: '#a01c1c' }}>{error}</p>}
+      {error && <p style={{ color: 'var(--danger)' }}>{error}</p>}
 
       <ul style={{ listStyle: 'none', padding: 0 }}>
         {run.results.map((r) => (
@@ -107,23 +107,36 @@ function TestRunDetailPage() {
             </div>
 
             <input
+              aria-label={`Notes for "${r.title}"`}
               placeholder="Notes (shown in Discord alert if this fails)..."
               value={notesByCase[r.testCaseId] || ''}
               onChange={(e) => setNotesByCase((prev) => ({ ...prev, [r.testCaseId]: e.target.value }))}
-              style={{ width: '100%', padding: '0.4rem', marginBottom: '0.5rem', boxSizing: 'border-box' }}
+              style={{ width: '100%', marginBottom: '0.5rem', boxSizing: 'border-box' }}
             />
 
             <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <button disabled={busyCaseId === r.testCaseId} onClick={() => handleSetResult(r.testCaseId, 'passed')}>
+              <button
+                className="btn-secondary"
+                disabled={busyCaseId === r.testCaseId}
+                onClick={() => handleSetResult(r.testCaseId, 'passed')}
+              >
                 Pass
               </button>
-              <button disabled={busyCaseId === r.testCaseId} onClick={() => handleSetResult(r.testCaseId, 'failed')}>
+              <button
+                className="btn-secondary"
+                disabled={busyCaseId === r.testCaseId}
+                onClick={() => handleSetResult(r.testCaseId, 'failed')}
+              >
                 Fail
               </button>
-              <button disabled={busyCaseId === r.testCaseId} onClick={() => handleSetResult(r.testCaseId, 'skipped')}>
+              <button
+                className="btn-secondary"
+                disabled={busyCaseId === r.testCaseId}
+                onClick={() => handleSetResult(r.testCaseId, 'skipped')}
+              >
                 Skip
               </button>
-              {r.alertSent && <span style={{ color: '#777', fontSize: '0.8rem', alignSelf: 'center' }}>🔔 Discord alert sent</span>}
+              {r.alertSent && <span style={{ color: 'var(--muted)', fontSize: '0.8rem', alignSelf: 'center' }}>🔔 Discord alert sent</span>}
             </div>
           </li>
         ))}

@@ -3,7 +3,7 @@ import SeverityBadge from './SeverityBadge';
 
 function TestCaseViewDialog({ testCase, onClose, onEdit, onDelete }) {
   return (
-    <Dialog onClose={onClose} style={{ background: '#fff', position: 'relative' }}>
+    <Dialog onClose={onClose} style={{ position: 'relative' }}>
       <button onClick={onClose} style={closeButtonStyle} aria-label="Close">
         ×
       </button>
@@ -12,7 +12,7 @@ function TestCaseViewDialog({ testCase, onClose, onEdit, onDelete }) {
 
       <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '1rem' }}>
         <SeverityBadge severity={testCase.severity} />
-        <span style={{ color: '#555' }}>{testCase.status}</span>
+        <span style={{ color: 'var(--muted)' }}>{testCase.status}</span>
       </div>
 
       {testCase.preconditions && (
@@ -36,18 +36,22 @@ function TestCaseViewDialog({ testCase, onClose, onEdit, onDelete }) {
         <p style={{ margin: 0 }}>{testCase.expectedResult}</p>
       </div>
 
-      <p style={{ color: '#777', fontSize: '0.85rem' }}>Updated {new Date(testCase.updatedAt).toLocaleString()}</p>
+      <p style={{ color: 'var(--muted)', fontSize: '0.85rem' }}>Updated {new Date(testCase.updatedAt).toLocaleString()}</p>
 
       <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', marginTop: '1.5rem' }}>
-        <button onClick={() => onEdit(testCase)}>Edit</button>
-        <button onClick={() => onDelete(testCase.id)}>Delete</button>
+        <button className="btn-secondary" onClick={() => onEdit(testCase)}>
+          Edit
+        </button>
+        <button className="btn-secondary" onClick={() => onDelete(testCase.id)}>
+          Delete
+        </button>
       </div>
     </Dialog>
   );
 }
 
 const sectionStyle = { marginBottom: '1rem' };
-const sectionHeadingStyle = { margin: '0 0 0.25rem', fontSize: '0.9rem', textTransform: 'uppercase', color: '#777' };
+const sectionHeadingStyle = { margin: '0 0 0.25rem', fontSize: '0.9rem', textTransform: 'uppercase', color: 'var(--muted)' };
 
 const closeButtonStyle = {
   position: 'absolute',
@@ -58,7 +62,7 @@ const closeButtonStyle = {
   fontSize: '1.5rem',
   lineHeight: 1,
   cursor: 'pointer',
-  color: '#555',
+  color: 'var(--muted)',
 };
 
 export default TestCaseViewDialog;
