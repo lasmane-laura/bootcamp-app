@@ -524,3 +524,12 @@ dialog::backdrop {
   font-size: 0.8rem;
   white-space: nowrap;
 }
+
+.leaderboard-hypothesis {
+  flex-shrink: 0;
+  max-width: 45%;
+  color: var(--text);
+  font-size: 0.85rem;
+  font-style: italic;
+  text-align: right;
+}

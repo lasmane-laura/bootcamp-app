@@ -1,0 +1,12 @@
+{
+  "34": "Race condition between discount calculation and total re-render.",
+  "39": "Timing issue between price filter inputs and result rendering.",
+  "1": "Dashboard redirect race condition after login submission.",
+  "2": "Confirmation message timing depends on email service response.",
+  "44": "Badge count update lags behind notification read action.",
+  "49": "User list not refreshing after role save.",
+  "3": "Cart icon count update lags after add action.",
+  "35": "Validation timing race between blank field and submit.",
+  "40": "Sort applied before all results finish loading.",
+  "45": "Settings save request occasionally not fully persisted."
+}

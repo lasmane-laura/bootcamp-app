@@ -1,10 +1,24 @@
 const express = require('express');
+const fs = require('fs');
+const path = require('path');
 const db = require('../db');
 
 const router = express.Router();
 
 const FLAKY_TRANSITIONS_THRESHOLD = 2;
 const SORTABLE = ['title', 'totalRuns', 'passRate', 'transitions', 'isFlaky'];
+const HYPOTHESES_PATH = path.join(__dirname, '../flaky-hypotheses.json');
+
+// Read fresh on every request (not cached) so the flake-analyzer subagent's
+// updates show up on next page load with no server restart needed. Keyed by
+// test_case_id (string) -> a short AI-generated root-cause hypothesis.
+function loadHypotheses() {
+  try {
+    return JSON.parse(fs.readFileSync(HYPOTHESES_PATH, 'utf8'));
+  } catch {
+    return {};
+  }
+}
 
 function computeFlakyStats() {
   const rows = db
@@ -17,6 +31,8 @@ function computeFlakyStats() {
        ORDER BY trr.test_case_id ASC, tr.start_time ASC, trr.run_id ASC`
     )
     .all();
+
+  const hypotheses = loadHypotheses();
 
   const byCase = new Map();
   for (const row of rows) {
@@ -58,6 +74,7 @@ function computeFlakyStats() {
       transitions,
       isFlaky: transitions >= FLAKY_TRANSITIONS_THRESHOLD,
       history: entry.history.map((r) => ({ runId: r.run_id, result: r.result, date: r.start_time })),
+      hypothesis: hypotheses[String(testCaseId)] || null,
     });
   }
 
