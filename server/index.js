@@ -8,7 +8,9 @@ try {
 
 const express = require('express');
 const seed = require('./seed');
+const seedExtraTestCases = require('./seed-test-cases-extra');
 const seedSuites = require('./seed-suites');
+const seedExtraSuites = require('./seed-suites-extra');
 const seedBugs = require('./seed-bugs');
 const seedTestRuns = require('./seed-test-runs');
 const seedExtraTestRuns = require('./seed-test-runs-extra');
@@ -46,7 +48,9 @@ app.use('/api/reports', reportsRouter);
 app.use('/api/settings', settingsRouter);
 
 seed();
+seedExtraTestCases();
 seedSuites();
+seedExtraSuites();
 seedBugs();
 seedTestRuns();
 seedExtraTestRuns();
