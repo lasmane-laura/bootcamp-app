@@ -5,6 +5,7 @@ import RunHistoryDots from '../components/RunHistoryDots';
 import Select from '../components/Select';
 import SearchInput from '../components/SearchInput';
 import InfoTooltip from '../components/InfoTooltip';
+import FlakyLeaderboard from '../components/FlakyLeaderboard';
 
 const PAGE_SIZE = 20;
 
@@ -22,6 +23,27 @@ function FlakyTestTrackerPage() {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  const [leaders, setLeaders] = useState([]);
+  const [leadersLoading, setLeadersLoading] = useState(true);
+  const [leadersError, setLeadersError] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+    listFlakyTests({ page: 1, pageSize: 10, sortBy: 'transitions', sortDir: 'desc', flaky: 'flaky' })
+      .then((data) => {
+        if (!cancelled) setLeaders(data.items);
+      })
+      .catch((err) => {
+        if (!cancelled) setLeadersError(err.message);
+      })
+      .finally(() => {
+        if (!cancelled) setLeadersLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     const timeout = setTimeout(() => setSearch(searchInput), 300);
@@ -87,6 +109,8 @@ function FlakyTestTrackerPage() {
         Flaky test tracker
         <InfoTooltip label="What counts as a flaky test">{FLAKY_EXPLANATION}</InfoTooltip>
       </h1>
+
+      <FlakyLeaderboard items={leaders} loading={leadersLoading} error={leadersError} />
 
       <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
         <SearchInput
