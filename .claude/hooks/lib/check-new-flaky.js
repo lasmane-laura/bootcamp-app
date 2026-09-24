@@ -43,9 +43,14 @@ function computeFlakyTestCaseIds() {
 
   const flakyIds = new Set();
   for (const [testCaseId, results] of byCase.entries()) {
+    // Skips carry no pass/fail signal — must be excluded before counting
+    // transitions, exactly like flaky-tests.js's `decided` filter and
+    // test-runs.js's computeFlakinessForCase, or a passed->skipped->passed
+    // run gets miscounted as 2 transitions despite never having failed.
+    const decided = results.filter((r) => r === 'passed' || r === 'failed');
     let transitions = 0;
-    for (let i = 1; i < results.length; i++) {
-      if (results[i] !== results[i - 1]) transitions++;
+    for (let i = 1; i < decided.length; i++) {
+      if (decided[i] !== decided[i - 1]) transitions++;
     }
     if (transitions >= FLAKY_TRANSITIONS_THRESHOLD) flakyIds.add(testCaseId);
   }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { listSuites, createSuite, updateSuite, deleteSuite } from '../api/suites';
+import { listSuites, createSuite, updateSuite, deleteSuite, getSuite } from '../api/suites';
 import SuiteForm from '../components/SuiteForm';
 import Select from '../components/Select';
 
@@ -49,7 +49,21 @@ function TestSuitesPage() {
   }
 
   async function handleDelete(id) {
-    if (!window.confirm('Delete this suite?')) return;
+    let message = 'Delete this suite?';
+    try {
+      const detail = await getSuite(id);
+      const atRiskTitles = detail.cases.filter((c) => c.atRiskIfDeleted).map((c) => c.title);
+      if (atRiskTitles.length > 0) {
+        message =
+          `Delete this suite? This also permanently deletes its test runs, which will corrupt the ` +
+          `flaky-test history for ${atRiskTitles.length} test case(s) also used in other suites:\n` +
+          atRiskTitles.map((t) => `- ${t}`).join('\n');
+      }
+    } catch {
+      // If the pre-check fails, fall back to the generic confirmation rather than blocking deletion.
+    }
+
+    if (!window.confirm(message)) return;
     await deleteSuite(id);
     setReloadKey((k) => k + 1);
   }

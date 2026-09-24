@@ -17,13 +17,14 @@ function serializeSuite(row, caseCount) {
   };
 }
 
-function serializeCase(row) {
+function serializeCase(row, extra = {}) {
   return {
     id: row.id,
     title: row.title,
     severity: row.severity,
     status: row.status,
     sortOrder: row.sort_order,
+    ...extra,
   };
 }
 
@@ -60,6 +61,28 @@ function handleListSuites(req, res) {
   res.json({ success: true, data: { items, total: items.length }, error: null });
 }
 
+// Deleting a suite cascades to its test_runs_v2/test_run_results rows. For a
+// case that also belongs to another suite, that's not just losing this suite's
+// runs — computeFlakyStats() aggregates a case's flakiness across every suite it
+// belongs to, so it silently corrupts that other suite's flaky/stable signal too.
+// Flagged here so the client can warn before the delete is confirmed.
+function caseIsAtRiskIfSuiteDeleted(testCaseId, suiteId) {
+  const inOtherSuite = db
+    .prepare('SELECT 1 FROM suite_cases WHERE test_case_id = ? AND suite_id != ? LIMIT 1')
+    .get(testCaseId, suiteId);
+  if (!inOtherSuite) return false;
+
+  const hasHistory = db
+    .prepare(
+      `SELECT 1 FROM test_run_results trr
+       JOIN test_runs_v2 tr ON tr.id = trr.run_id
+       WHERE tr.suite_id = ? AND trr.test_case_id = ? AND trr.result != 'pending'
+       LIMIT 1`
+    )
+    .get(suiteId, testCaseId);
+  return !!hasHistory;
+}
+
 function handleGetSuite(req, res) {
   const suite = db.prepare('SELECT * FROM suites WHERE id = ?').get(req.params.id);
   if (!suite) return res.status(404).json({ success: false, data: null, error: 'Suite not found' });
@@ -73,7 +96,9 @@ function handleGetSuite(req, res) {
        ORDER BY sc.sort_order ASC`
     )
     .all(req.params.id)
-    .map(serializeCase);
+    .map((row) =>
+      serializeCase(row, { atRiskIfDeleted: caseIsAtRiskIfSuiteDeleted(row.id, Number(req.params.id)) })
+    );
 
   res.json({ success: true, data: { ...serializeSuite(suite, cases.length), cases }, error: null });
 }

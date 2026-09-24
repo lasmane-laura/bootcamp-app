@@ -231,7 +231,7 @@ async function handleUpdateResult(req, res) {
   if (!RESULTS.includes(result) || result === 'pending') {
     return res.status(400).json({ success: false, data: null, error: 'result must be one of passed, failed, skipped' });
   }
-  if (durationMs !== undefined && durationMs !== null && (typeof durationMs !== 'number' || durationMs < 0)) {
+  if (durationMs !== undefined && durationMs !== null && (!Number.isFinite(durationMs) || durationMs < 0)) {
     return res.status(400).json({ success: false, data: null, error: 'durationMs must be a non-negative number' });
   }
 
@@ -249,6 +249,16 @@ async function handleUpdateResult(req, res) {
     existing.id
   );
 
+  // Fires once, the moment a test case's pass/fail history crosses the flaky
+  // threshold — never retroactively, and never again afterward (transitions
+  // only accumulate, so wasFlaky is true on every subsequent call once true).
+  // Snapshotted synchronously, right after the write and before any `await`
+  // below: an `await` yields the event loop, which would let a concurrent
+  // request for the same test case interleave and read this same stale
+  // `wasFlaky`, double-firing the alert for one crossing event.
+  const isFlakyNow = computeFlakinessForCase(testCaseId).isFlaky;
+  const shouldSendNewFlakyAlert = !wasFlaky && isFlakyNow;
+
   if (becomingFailed) {
     const testCase = db.prepare('SELECT title FROM test_cases WHERE id = ?').get(req.params.testCaseId);
     const updatedRow = db.prepare('SELECT * FROM test_run_results WHERE id = ?').get(existing.id);
@@ -258,11 +268,7 @@ async function handleUpdateResult(req, res) {
     }
   }
 
-  // Fires once, the moment a test case's pass/fail history crosses the flaky
-  // threshold — never retroactively, and never again afterward (transitions
-  // only accumulate, so wasFlaky is true on every subsequent call once true).
-  const isFlakyNow = computeFlakinessForCase(testCaseId).isFlaky;
-  if (!wasFlaky && isFlakyNow) {
+  if (shouldSendNewFlakyAlert) {
     const testCase = db.prepare('SELECT title FROM test_cases WHERE id = ?').get(testCaseId);
     await sendNewFlakyAlert(run, testCase);
   }

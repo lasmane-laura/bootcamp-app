@@ -11,21 +11,30 @@ function RunHistoryDots({ history }) {
   }
 
   return (
-    <span style={{ display: 'inline-flex', gap: '3px', flexWrap: 'wrap', alignItems: 'center' }}>
-      {history.map((h) => (
-        <span
-          key={h.runId}
-          title={`${new Date(h.date).toLocaleString()} — ${h.result}`}
-          style={{
-            display: 'inline-block',
-            width: '10px',
-            height: '10px',
-            borderRadius: '50%',
-            background: RESULT_COLORS[h.result] || RESULT_COLORS.pending,
-            flexShrink: 0,
-          }}
-        />
-      ))}
+    <span
+      role="group"
+      aria-label="Run history"
+      style={{ display: 'inline-flex', gap: '3px', flexWrap: 'wrap', alignItems: 'center' }}
+    >
+      {history.map((h) => {
+        const label = `${new Date(h.date).toLocaleString()} — ${h.result}`;
+        return (
+          <span
+            key={h.runId}
+            role="img"
+            aria-label={label}
+            title={label}
+            style={{
+              display: 'inline-block',
+              width: '10px',
+              height: '10px',
+              borderRadius: '50%',
+              background: RESULT_COLORS[h.result] || RESULT_COLORS.pending,
+              flexShrink: 0,
+            }}
+          />
+        );
+      })}
     </span>
   );
 }
