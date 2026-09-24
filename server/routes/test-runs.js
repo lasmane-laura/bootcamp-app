@@ -5,6 +5,7 @@ const router = express.Router();
 
 const RESULTS = ['pending', 'passed', 'failed', 'skipped'];
 const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
+const FLAKY_TRANSITIONS_THRESHOLD = 2; // must match server/routes/flaky-tests.js
 
 function serializeRun(row, extra = {}) {
   return {
@@ -67,6 +68,56 @@ function recomputeRunCounts(runId) {
     endTime,
     runId
   );
+}
+
+// Mirrors flaky-tests.js's transitions algorithm, scoped to one test case, so
+// we can snapshot "was this flaky before this write" vs "is it flaky now."
+function computeFlakinessForCase(testCaseId) {
+  const rows = db
+    .prepare(
+      `SELECT trr.result
+       FROM test_run_results trr
+       JOIN test_runs_v2 tr ON tr.id = trr.run_id
+       WHERE trr.test_case_id = ? AND trr.result != 'pending'
+       ORDER BY tr.start_time ASC, trr.run_id ASC`
+    )
+    .all(testCaseId);
+
+  const decided = rows.filter((r) => r.result === 'passed' || r.result === 'failed');
+  let transitions = 0;
+  for (let i = 1; i < decided.length; i++) {
+    if (decided[i].result !== decided[i - 1].result) transitions++;
+  }
+
+  return { transitions, isFlaky: transitions >= FLAKY_TRANSITIONS_THRESHOLD };
+}
+
+async function sendNewFlakyAlert(run, testCase) {
+  const webhookUrl = process.env.DISCORD_FT_WEBHOOK_URL;
+  if (!webhookUrl) {
+    console.warn('DISCORD_FT_WEBHOOK_URL not configured; skipping new-flaky alert.');
+    return false;
+  }
+
+  const suite = db.prepare('SELECT name FROM suites WHERE id = ?').get(run.suite_id);
+  const content = [
+    '@everyone',
+    `**⚠️ New flaky test detected:** ${testCase.title}`,
+    `**Suite:** ${suite ? suite.name : 'Unknown suite'}`,
+    "**Warning:** This test's results have flipped between pass and fail multiple times — please investigate before trusting its results.",
+  ].join('\n');
+
+  try {
+    const res = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content, allowed_mentions: { parse: ['everyone'] } }),
+    });
+    return res.ok;
+  } catch (err) {
+    console.error('Failed to post Discord new-flaky alert:', err.message);
+    return false;
+  }
 }
 
 async function sendFailureAlert(run, resultRow, testCase) {
@@ -184,6 +235,9 @@ async function handleUpdateResult(req, res) {
     return res.status(400).json({ success: false, data: null, error: 'durationMs must be a non-negative number' });
   }
 
+  const testCaseId = Number(req.params.testCaseId);
+  const wasFlaky = computeFlakinessForCase(testCaseId).isFlaky;
+
   const becomingFailed = result === 'failed' && existing.result !== 'failed';
   const failedAt = result === 'failed' ? new Date().toISOString() : existing.failed_at;
 
@@ -202,6 +256,15 @@ async function handleUpdateResult(req, res) {
     if (alertSent) {
       db.prepare('UPDATE test_run_results SET alert_sent = 1 WHERE id = ?').run(existing.id);
     }
+  }
+
+  // Fires once, the moment a test case's pass/fail history crosses the flaky
+  // threshold — never retroactively, and never again afterward (transitions
+  // only accumulate, so wasFlaky is true on every subsequent call once true).
+  const isFlakyNow = computeFlakinessForCase(testCaseId).isFlaky;
+  if (!wasFlaky && isFlakyNow) {
+    const testCase = db.prepare('SELECT title FROM test_cases WHERE id = ?').get(testCaseId);
+    await sendNewFlakyAlert(run, testCase);
   }
 
   recomputeRunCounts(req.params.runId);
