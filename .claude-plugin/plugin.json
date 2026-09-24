@@ -1,0 +1,9 @@
+{
+  "name": "qa-command-center",
+  "description": "Claude Code tooling for the QA Command Center test-management app — commands, agents, hooks, and skills supporting QA workflows such as test case generation, bug triage, code review, and flaky-test analysis.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Laura Lasmane",
+    "email": "laura.lasmane@testdevlab.com"
+  }
+}

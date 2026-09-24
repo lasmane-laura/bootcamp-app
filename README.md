@@ -4,6 +4,57 @@ A QA test-management app: test cases, suites, bugs, test runs, reports, a dashbo
 
 React (Vite) client + Express server, npm workspaces monorepo (`client/`, `server/`), with a `better-sqlite3` database file for storage.
 
+This repo also doubles as a Claude Code plugin (`qa-command-center`) — see below for what it does, how to install it, and what's in it.
+
+## What this plugin does
+
+This repo bundles the Claude Code tooling used to build and maintain this app's QA workflows: slash commands for structured intake (bug reports, manual test cases, feature test plans), skills that auto-trigger for QA review, test-case generation, and email drafting, subagents that generate test suites and review changes from a QA angle, and hooks that enforce this repo's own conventions (response shape, severity enum) and alert on flaky tests. It's the same tooling this project was actually built with, packaged so it can be reused in other repos.
+
+## Install
+
+The plugin isn't published to a marketplace — load it straight from this repo's root (where `.claude-plugin/plugin.json` lives):
+
+```bash
+claude --plugin-dir /path/to/bootcamp-app
+```
+
+Or set it for every session via an environment variable:
+
+```bash
+export CLAUDE_CODE_PLUGIN_DIRS=/path/to/bootcamp-app
+```
+
+## Examples
+
+Two worked examples, each with the actual prompt used, what Claude did, and the real result:
+
+- [`examples/qa-review-flaky-tracker.md`](examples/qa-review-flaky-tracker.md) — the `qa-reviewer` agent finding and fixing 5 real issues in the Flaky Test Tracker feature.
+- [`examples/full-app-design-audit.md`](examples/full-app-design-audit.md) — a backgrounded, whole-app UI design review that produced a ranked top-5 list of real issues, later fixed.
+
+## What's inside
+
+**Commands** (`.claude/commands/`)
+- `/bug-report` — walks through filing a bug report, one question at a time, saved under `tests/bugs/`.
+- `/new-test` — walks through writing a manual test case, saved under `tests/manual/`.
+- `/tp-new-feature` — structured intake for a new feature's test plan, saved under `tests/tp/`.
+
+**Skills** (`.claude/skills/`)
+- `qa-review` — reviews code or a feature from a tester's angle: coverage gaps, missing edge cases.
+- `test-generator` — generates test cases via ISTQB boundary-value analysis and equivalence partitioning.
+- `email-drafter` — drafts professional-sounding emails.
+
+**Agents** (`.claude/agents/`)
+- `test-writer` — generates a full set of test cases (happy path, boundary values, negative cases) for a described feature.
+- `qa-reviewer` — reviews a feature/change and outputs a prioritized list of issues.
+- `flake-analyzer` — generates root-cause hypotheses for the flakiest tests on the Flaky Tests leaderboard.
+- `email-selection` — compares the two drafts from `email-drafter` and recommends which to send.
+
+**Hooks** (`.claude/hooks/`, registered in `.claude/settings.json`)
+- `check-response-shape.sh` — warns if an edited `server/routes/` file returns a response that doesn't follow the `{success, data, error}` envelope.
+- `check-severity-enum.sh` — warns if edited code uses severity words outside Critical/Major/Minor/Trivial.
+- `test_run_results.sh` — after a Bash command that looks like it wrote test results directly, recomputes flakiness and alerts on newly-flaky tests.
+- `print-after-prompt.sh` — prints a confirmation after every completed prompt.
+
 ## Local development
 
 ```bash
@@ -75,3 +126,7 @@ brew install render && render login && render workspace set && render services c
 - If you want the Discord alert feature, add `DISCORD_WEBHOOK_URL` as a secret env var in the service's dashboard afterward (it's deliberately left out of the command above so the real webhook URL never ends up in your shell history).
 
 Paste that final `https://...onrender.com` URL back here when it's done.
+
+---
+
+Licensed under the [MIT License](LICENSE).
