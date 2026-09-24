@@ -22,15 +22,15 @@ function TestRunsPage() {
       {loading && <p>Loading...</p>}
 
       {!loading && !error && (
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <table className="data-table">
           <thead>
-            <tr style={{ textAlign: 'left', borderBottom: '2px solid #ddd' }}>
-              <th style={thStyle}>Suite</th>
-              <th style={thStyle}>Status</th>
-              <th style={thStyle}>Pass</th>
-              <th style={thStyle}>Fail</th>
-              <th style={thStyle}>Skip</th>
-              <th style={thStyle}>Started</th>
+            <tr>
+              <th>Suite</th>
+              <th>Status</th>
+              <th>Pass</th>
+              <th>Fail</th>
+              <th>Skip</th>
+              <th>Started</th>
             </tr>
           </thead>
           <tbody>
@@ -42,15 +42,15 @@ function TestRunsPage() {
               </tr>
             )}
             {items.map((r) => (
-              <tr key={r.id} style={{ borderBottom: '1px solid #eee' }}>
-                <td style={tdStyle}>
+              <tr key={r.id}>
+                <td>
                   <Link to={`/test-runs/${r.id}`}>{r.suiteName}</Link>
                 </td>
-                <td style={tdStyle}>{r.status}</td>
-                <td style={{ ...tdStyle, color: 'var(--success)' }}>{r.passCount}</td>
-                <td style={{ ...tdStyle, color: 'var(--danger)' }}>{r.failCount}</td>
-                <td style={{ ...tdStyle, color: 'var(--muted)' }}>{r.skipCount}</td>
-                <td style={tdStyle}>{new Date(r.startTime).toLocaleString()}</td>
+                <td>{r.status}</td>
+                <td style={{ color: 'var(--success)' }}>{r.passCount}</td>
+                <td style={{ color: 'var(--danger)' }}>{r.failCount}</td>
+                <td style={{ color: 'var(--muted)' }}>{r.skipCount}</td>
+                <td>{new Date(r.startTime).toLocaleString()}</td>
               </tr>
             ))}
           </tbody>
@@ -59,8 +59,5 @@ function TestRunsPage() {
     </div>
   );
 }
-
-const thStyle = { padding: '0.5rem' };
-const tdStyle = { padding: '0.5rem' };
 
 export default TestRunsPage;

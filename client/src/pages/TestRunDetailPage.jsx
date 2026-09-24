@@ -11,6 +11,22 @@ const RESULT_COLORS = {
   skipped: '#8a7000',
 };
 
+function BellIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+      <path
+        d="M6 10a6 6 0 0 1 12 0c0 4 1.5 5.5 1.5 5.5H4.5S6 14 6 10Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
+      <path d="M10 18.5a2 2 0 0 0 4 0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 function TestRunDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -116,27 +132,40 @@ function TestRunDetailPage() {
 
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <button
-                className="btn-secondary"
+                className="btn-result btn-result-pass"
                 disabled={busyCaseId === r.testCaseId}
                 onClick={() => handleSetResult(r.testCaseId, 'passed')}
               >
                 Pass
               </button>
               <button
-                className="btn-secondary"
+                className="btn-result btn-result-fail"
                 disabled={busyCaseId === r.testCaseId}
                 onClick={() => handleSetResult(r.testCaseId, 'failed')}
               >
                 Fail
               </button>
               <button
-                className="btn-secondary"
+                className="btn-result btn-result-skip"
                 disabled={busyCaseId === r.testCaseId}
                 onClick={() => handleSetResult(r.testCaseId, 'skipped')}
               >
                 Skip
               </button>
-              {r.alertSent && <span style={{ color: 'var(--muted)', fontSize: '0.8rem', alignSelf: 'center' }}>🔔 Discord alert sent</span>}
+              {r.alertSent && (
+                <span
+                  style={{
+                    color: 'var(--muted)',
+                    fontSize: '0.8rem',
+                    alignSelf: 'center',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.3rem',
+                  }}
+                >
+                  <BellIcon /> Discord alert sent
+                </span>
+              )}
             </div>
           </li>
         ))}
@@ -148,7 +177,7 @@ function TestRunDetailPage() {
 const rowStyle = {
   padding: '0.75rem',
   marginBottom: '0.5rem',
-  border: '1px solid #eee',
+  border: '1px solid var(--border)',
   borderRadius: '6px',
 };
 

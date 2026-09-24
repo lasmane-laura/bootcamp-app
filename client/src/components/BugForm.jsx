@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Dialog from './Dialog';
 import Select from './Select';
+import AttachmentIcon from './AttachmentIcon';
 import { uploadBugAttachment, deleteBugAttachment, bugAttachmentUrl } from '../api/bugs';
 
 const SEVERITIES = ['Critical', 'Major', 'Minor', 'Trivial'];
@@ -192,7 +193,7 @@ function BugForm({ initial, onSubmit, onCancel, defaultSeverity }) {
                 setDragActive(false);
                 handleFiles(e.dataTransfer.files);
               }}
-              style={{ ...dropzoneStyle, borderColor: dragActive ? '#2563eb' : '#ccc' }}
+              style={{ ...dropzoneStyle, borderColor: dragActive ? 'var(--link)' : 'var(--border)' }}
             >
               <p style={{ margin: 0, color: 'var(--muted)', fontSize: '0.85rem' }}>
                 Drag and drop a photo, video, or text/log file here, or{' '}
@@ -229,7 +230,7 @@ function BugForm({ initial, onSubmit, onCancel, defaultSeverity }) {
                         style={{ width: '36px', height: '36px', objectFit: 'cover', borderRadius: '4px', flexShrink: 0 }}
                       />
                     ) : (
-                      <span aria-hidden="true" style={{ fontSize: '1.2rem', flexShrink: 0 }}>{a.kind === 'video' ? '🎬' : '📄'}</span>
+                      <AttachmentIcon kind={a.kind} />
                     )}
                     <a
                       href={bugAttachmentUrl(initial.id, a.id)}
@@ -240,7 +241,7 @@ function BugForm({ initial, onSubmit, onCancel, defaultSeverity }) {
                       {a.filename}
                     </a>
                     <span style={{ color: 'var(--muted)', fontSize: '0.75rem', flexShrink: 0 }}>{formatBytes(a.size)}</span>
-                    <button type="button" className="btn-secondary" onClick={() => handleRemoveAttachment(a.id)}>
+                    <button type="button" className="btn-danger" onClick={() => handleRemoveAttachment(a.id)}>
                       Remove
                     </button>
                   </li>
@@ -275,7 +276,7 @@ const fieldStyle = {
 };
 
 const dropzoneStyle = {
-  border: '2px dashed #ccc',
+  border: '2px dashed var(--border)',
   borderRadius: '6px',
   padding: '0.75rem',
   textAlign: 'center',
@@ -286,7 +287,7 @@ const attachmentRowStyle = {
   alignItems: 'center',
   gap: '0.5rem',
   padding: '0.4rem 0',
-  borderBottom: '1px solid #eee',
+  borderBottom: '1px solid var(--border)',
 };
 
 export default BugForm;

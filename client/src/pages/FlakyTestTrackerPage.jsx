@@ -132,40 +132,40 @@ function FlakyTestTrackerPage() {
 
       {!loading && !error && (
         <>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <table className="data-table">
             <thead>
-              <tr style={{ textAlign: 'left', borderBottom: '2px solid #ddd' }}>
-                <th style={thStyle} aria-sort={sortAriaValue('title')}>
+              <tr>
+                <th aria-sort={sortAriaValue('title')}>
                   <button type="button" style={sortButtonStyle} onClick={() => toggleSort('title')}>
                     Test Case
                     <SortArrow column="title" />
                   </button>
                 </th>
-                <th style={thStyle} aria-sort={sortAriaValue('totalRuns')}>
+                <th aria-sort={sortAriaValue('totalRuns')}>
                   <button type="button" style={sortButtonStyle} onClick={() => toggleSort('totalRuns')}>
                     Runs
                     <SortArrow column="totalRuns" />
                   </button>
                 </th>
-                <th style={thStyle} aria-sort={sortAriaValue('passRate')}>
+                <th aria-sort={sortAriaValue('passRate')}>
                   <button type="button" style={sortButtonStyle} onClick={() => toggleSort('passRate')}>
                     Pass Rate
                     <SortArrow column="passRate" />
                   </button>
                 </th>
-                <th style={thStyle} aria-sort={sortAriaValue('transitions')}>
+                <th aria-sort={sortAriaValue('transitions')}>
                   <button type="button" style={sortButtonStyle} onClick={() => toggleSort('transitions')}>
                     Transitions
                     <SortArrow column="transitions" />
                   </button>
                 </th>
-                <th style={thStyle} aria-sort={sortAriaValue('isFlaky')}>
+                <th aria-sort={sortAriaValue('isFlaky')}>
                   <button type="button" style={sortButtonStyle} onClick={() => toggleSort('isFlaky')}>
                     Status
                     <SortArrow column="isFlaky" />
                   </button>
                 </th>
-                <th style={thStyle}>History</th>
+                <th>History</th>
               </tr>
             </thead>
             <tbody>
@@ -177,15 +177,15 @@ function FlakyTestTrackerPage() {
                 </tr>
               )}
               {items.map((tc) => (
-                <tr key={tc.testCaseId} style={{ borderBottom: '1px solid #eee' }}>
-                  <td style={tdStyle}>{tc.title}</td>
-                  <td style={tdStyle}>{tc.totalRuns}</td>
-                  <td style={tdStyle}>{tc.passRate === null ? '—' : `${tc.passRate}%`}</td>
-                  <td style={tdStyle}>{tc.transitions}</td>
-                  <td style={tdStyle}>
+                <tr key={tc.testCaseId}>
+                  <td>{tc.title}</td>
+                  <td>{tc.totalRuns}</td>
+                  <td>{tc.passRate === null ? '—' : `${tc.passRate}%`}</td>
+                  <td>{tc.transitions}</td>
+                  <td>
                     <FlakyBadge isFlaky={tc.isFlaky} />
                   </td>
-                  <td style={tdStyle}>
+                  <td>
                     <RunHistoryDots history={tc.history} />
                   </td>
                 </tr>
@@ -211,9 +211,6 @@ function FlakyTestTrackerPage() {
     </div>
   );
 }
-
-const thStyle = { padding: '0.5rem' };
-const tdStyle = { padding: '0.5rem' };
 
 const sortButtonStyle = {
   display: 'inline-flex',

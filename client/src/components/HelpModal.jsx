@@ -8,7 +8,7 @@ function HelpModal({ onClose }) {
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <tbody>
           {SHORTCUTS.map((shortcut) => (
-            <tr key={shortcut.id} style={{ borderBottom: '1px solid var(--border, #eee)' }}>
+            <tr key={shortcut.id} style={{ borderBottom: '1px solid var(--border)' }}>
               <td style={{ padding: '0.5rem 0.75rem 0.5rem 0', color: 'var(--text)' }}>{shortcut.description}</td>
               <td style={{ padding: '0.5rem 0', textAlign: 'right', whiteSpace: 'nowrap' }}>
                 {formatShortcut(shortcut).map((key, i) => (
@@ -32,11 +32,11 @@ function HelpModal({ onClose }) {
 const kbdStyle = {
   display: 'inline-block',
   padding: '0.15rem 0.45rem',
-  border: '1px solid var(--border, #ccc)',
+  border: '1px solid var(--border)',
   borderRadius: '4px',
   fontFamily: 'monospace',
   fontSize: '0.85rem',
-  background: 'var(--input-bg, #f5f5f5)',
+  background: 'var(--input-bg)',
 };
 
 export default HelpModal;

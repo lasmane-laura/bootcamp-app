@@ -22,16 +22,16 @@ function ReportsPage() {
       {loading && <p>Loading...</p>}
 
       {!loading && !error && (
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <table className="data-table">
           <thead>
-            <tr style={{ textAlign: 'left', borderBottom: '2px solid #ddd' }}>
-              <th style={thStyle}>Suite</th>
-              <th style={thStyle}>Run date</th>
-              <th style={thStyle}>Total</th>
-              <th style={thStyle}>Passed</th>
-              <th style={thStyle}>Failed</th>
-              <th style={thStyle}>Skipped</th>
-              <th style={thStyle}>Generated</th>
+            <tr>
+              <th>Suite</th>
+              <th>Run date</th>
+              <th>Total</th>
+              <th>Passed</th>
+              <th>Failed</th>
+              <th>Skipped</th>
+              <th>Generated</th>
             </tr>
           </thead>
           <tbody>
@@ -43,16 +43,16 @@ function ReportsPage() {
               </tr>
             )}
             {items.map((r) => (
-              <tr key={r.id} style={{ borderBottom: '1px solid #eee' }}>
-                <td style={tdStyle}>
+              <tr key={r.id}>
+                <td>
                   <Link to={`/reports/${r.id}`}>{r.suiteName}</Link>
                 </td>
-                <td style={tdStyle}>{new Date(r.runDate).toLocaleString()}</td>
-                <td style={tdStyle}>{r.totalCount}</td>
-                <td style={{ ...tdStyle, color: 'var(--success)' }}>{r.passedCount}</td>
-                <td style={{ ...tdStyle, color: 'var(--danger)' }}>{r.failedCount}</td>
-                <td style={{ ...tdStyle, color: 'var(--warning)' }}>{r.skippedCount}</td>
-                <td style={tdStyle}>{new Date(r.generatedAt).toLocaleString()}</td>
+                <td>{new Date(r.runDate).toLocaleString()}</td>
+                <td>{r.totalCount}</td>
+                <td style={{ color: 'var(--success)' }}>{r.passedCount}</td>
+                <td style={{ color: 'var(--danger)' }}>{r.failedCount}</td>
+                <td style={{ color: 'var(--warning)' }}>{r.skippedCount}</td>
+                <td>{new Date(r.generatedAt).toLocaleString()}</td>
               </tr>
             ))}
           </tbody>
@@ -61,8 +61,5 @@ function ReportsPage() {
     </div>
   );
 }
-
-const thStyle = { padding: '0.5rem' };
-const tdStyle = { padding: '0.5rem' };
 
 export default ReportsPage;

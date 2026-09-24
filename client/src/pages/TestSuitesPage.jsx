@@ -97,15 +97,15 @@ function TestSuitesPage() {
       {loading && <p>Loading...</p>}
 
       {!loading && !error && (
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <table className="data-table">
           <thead>
-            <tr style={{ textAlign: 'left', borderBottom: '2px solid #ddd' }}>
-              <th style={thStyle}>Name</th>
-              <th style={thStyle}>Feature</th>
-              <th style={thStyle}>Status</th>
-              <th style={thStyle}>Cases</th>
-              <th style={thStyle}>Updated</th>
-              <th style={thStyle}></th>
+            <tr>
+              <th>Name</th>
+              <th>Feature</th>
+              <th>Status</th>
+              <th>Cases</th>
+              <th>Updated</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -117,19 +117,19 @@ function TestSuitesPage() {
               </tr>
             )}
             {items.map((s) => (
-              <tr key={s.id} style={{ borderBottom: '1px solid #eee' }}>
-                <td style={tdStyle}>
+              <tr key={s.id}>
+                <td>
                   <Link to={`/test-suites/${s.id}`}>{s.name}</Link>
                 </td>
-                <td style={tdStyle}>{s.feature}</td>
-                <td style={tdStyle}>{s.status}</td>
-                <td style={tdStyle}>{s.caseCount}</td>
-                <td style={tdStyle}>{new Date(s.updatedAt).toLocaleString()}</td>
-                <td style={{ ...tdStyle, textAlign: 'right', display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                <td>{s.feature}</td>
+                <td>{s.status}</td>
+                <td>{s.caseCount}</td>
+                <td>{new Date(s.updatedAt).toLocaleString()}</td>
+                <td style={{ textAlign: 'right', display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
                   <button className="btn-secondary" onClick={() => setEditing(s)}>
                     Edit
                   </button>
-                  <button className="btn-secondary" onClick={() => handleDelete(s.id)}>
+                  <button className="btn-danger" onClick={() => handleDelete(s.id)}>
                     Delete
                   </button>
                 </td>
@@ -144,8 +144,5 @@ function TestSuitesPage() {
     </div>
   );
 }
-
-const thStyle = { padding: '0.5rem' };
-const tdStyle = { padding: '0.5rem' };
 
 export default TestSuitesPage;

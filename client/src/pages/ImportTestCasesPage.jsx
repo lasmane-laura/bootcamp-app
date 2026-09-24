@@ -96,14 +96,14 @@ function ImportTestCasesPage() {
             <span style={{ color: 'var(--danger)' }}>{invalidCount} invalid</span>
           </p>
 
-          <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '1rem' }}>
+          <table className="data-table" style={{ marginBottom: '1rem' }}>
             <thead>
-              <tr style={{ textAlign: 'left', borderBottom: '2px solid #ddd' }}>
-                <th style={thStyle}>Row #</th>
-                <th style={thStyle}>Title</th>
-                <th style={thStyle}>Severity</th>
-                <th style={thStyle}>Status</th>
-                <th style={thStyle}>Errors</th>
+              <tr>
+                <th>Row #</th>
+                <th>Title</th>
+                <th>Severity</th>
+                <th>Status</th>
+                <th>Errors</th>
               </tr>
             </thead>
             <tbody>
@@ -115,14 +115,12 @@ function ImportTestCasesPage() {
                 </tr>
               )}
               {previewRows.map((r) => (
-                <tr key={r.rowNumber} style={{ borderBottom: '1px solid #eee', background: r.valid ? undefined : '#fde2e1' }}>
-                  <td style={tdStyle}>{r.rowNumber}</td>
-                  <td style={tdStyle}>{r.data.title || <em>(blank)</em>}</td>
-                  <td style={tdStyle}>{r.data.severity ? <SeverityBadge severity={r.data.severity} /> : ''}</td>
-                  <td style={tdStyle}>{r.data.status || 'draft'}</td>
-                  <td style={{ ...tdStyle, color: r.valid ? '#1a7f37' : '#a01c1c' }}>
-                    {r.valid ? 'Valid' : r.errors.join('; ')}
-                  </td>
+                <tr key={r.rowNumber} style={r.valid ? undefined : invalidRowStyle}>
+                  <td>{r.rowNumber}</td>
+                  <td>{r.data.title || <em>(blank)</em>}</td>
+                  <td>{r.data.severity ? <SeverityBadge severity={r.data.severity} /> : ''}</td>
+                  <td>{r.data.status || 'draft'}</td>
+                  <td style={{ color: r.valid ? '#1a7f37' : '#a01c1c' }}>{r.valid ? 'Valid' : r.errors.join('; ')}</td>
                 </tr>
               ))}
             </tbody>
@@ -168,7 +166,12 @@ function ImportTestCasesPage() {
   );
 }
 
-const thStyle = { padding: '0.5rem' };
-const tdStyle = { padding: '0.5rem' };
+// Restrained error signal (left accent + faint tint) instead of a full-strength
+// solid-red row wash — matches the small-pill color language used elsewhere
+// (badges, buttons) rather than introducing a louder, one-off treatment.
+const invalidRowStyle = {
+  borderLeft: '3px solid #a01c1c',
+  background: 'rgba(160, 28, 28, 0.07)',
+};
 
 export default ImportTestCasesPage;

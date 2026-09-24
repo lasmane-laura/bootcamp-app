@@ -179,9 +179,9 @@ function TestSuiteDetailPage() {
               gap: '0.75rem',
               padding: '0.6rem 0.75rem',
               marginBottom: '0.4rem',
-              border: '1px solid #eee',
+              border: '1px solid var(--border)',
               borderRadius: '6px',
-              background: draggingId === c.id ? 'rgba(37, 99, 235, 0.12)' : 'var(--bg)',
+              background: draggingId === c.id ? 'color-mix(in srgb, var(--link) 12%, transparent)' : 'var(--bg)',
               userSelect: draggingId !== null ? 'none' : 'auto',
             }}
           >
@@ -214,7 +214,7 @@ function TestSuiteDetailPage() {
             <span style={{ flex: 1 }}>{c.title}</span>
             <SeverityBadge severity={c.severity} />
             <span style={{ color: 'var(--muted)', minWidth: '70px' }}>{c.status}</span>
-            <button className="btn-secondary" onClick={() => handleRemoveCase(c.id)}>
+            <button className="btn-danger" onClick={() => handleRemoveCase(c.id)}>
               Remove
             </button>
           </li>

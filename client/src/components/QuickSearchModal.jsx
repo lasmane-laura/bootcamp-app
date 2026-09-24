@@ -83,7 +83,7 @@ function QuickSearchModal({ onClose }) {
 
   return (
     <Dialog onClose={onClose} ariaLabel="Quick search" style={{ width: '560px', padding: 0 }}>
-      <div style={{ padding: '1rem 1rem 0.75rem', borderBottom: '1px solid var(--border, #eee)' }}>
+      <div style={{ padding: '1rem 1rem 0.75rem', borderBottom: '1px solid var(--border)' }}>
         <SearchInput
           ref={inputRef}
           aria-label="Search test cases, bugs, and suites"
@@ -116,7 +116,7 @@ function QuickSearchModal({ onClose }) {
                     type="button"
                     onClick={() => goTo({ group, item })}
                     onMouseEnter={() => setActiveIndex(rowIndex)}
-                    style={{ ...rowStyle, background: isActive ? 'rgba(37, 99, 235, 0.18)' : 'transparent' }}
+                    style={{ ...rowStyle, background: isActive ? 'color-mix(in srgb, var(--link) 18%, transparent)' : 'transparent' }}
                   >
                     {item.title || item.name}
                   </button>

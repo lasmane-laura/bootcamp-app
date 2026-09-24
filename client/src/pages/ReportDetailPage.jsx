@@ -99,7 +99,7 @@ function ReportDetailPage() {
 const rowStyle = {
   padding: '0.75rem',
   marginBottom: '0.5rem',
-  border: '1px solid #eee',
+  border: '1px solid var(--border)',
   borderRadius: '6px',
 };
 

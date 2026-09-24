@@ -135,26 +135,26 @@ function DashboardPage() {
             No test runs yet — <Link to="/test-suites">pick a suite</Link> and start one to see results here.
           </p>
         ) : (
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <table className="data-table">
             <thead>
-              <tr style={{ textAlign: 'left', borderBottom: '2px solid #ddd' }}>
-                <th style={thStyle}>Suite</th>
-                <th style={thStyle}>Pass</th>
-                <th style={thStyle}>Fail</th>
-                <th style={thStyle}>Skip</th>
-                <th style={thStyle}>When</th>
+              <tr>
+                <th>Suite</th>
+                <th>Pass</th>
+                <th>Fail</th>
+                <th>Skip</th>
+                <th>When</th>
               </tr>
             </thead>
             <tbody>
               {recentRuns.map((r) => (
-                <tr key={r.id} style={{ borderBottom: '1px solid #eee' }}>
-                  <td style={tdStyle}>
+                <tr key={r.id}>
+                  <td>
                     <Link to={`/test-runs/${r.id}`}>{r.suiteName}</Link>
                   </td>
-                  <td style={{ ...tdStyle, color: 'var(--success)' }}>{r.passCount}</td>
-                  <td style={{ ...tdStyle, color: 'var(--danger)' }}>{r.failCount}</td>
-                  <td style={{ ...tdStyle, color: 'var(--muted)' }}>{r.skipCount}</td>
-                  <td style={tdStyle}>{new Date(r.startTime).toLocaleString()}</td>
+                  <td style={{ color: 'var(--success)' }}>{r.passCount}</td>
+                  <td style={{ color: 'var(--danger)' }}>{r.failCount}</td>
+                  <td style={{ color: 'var(--muted)' }}>{r.skipCount}</td>
+                  <td>{new Date(r.startTime).toLocaleString()}</td>
                 </tr>
               ))}
             </tbody>
@@ -196,8 +196,7 @@ function ChartCard({ title, subtitle, children }) {
   return (
     <div style={chartCardStyle}>
       <h3 style={{ margin: '0 0 0.1rem', fontSize: '1rem' }}>{title}</h3>
-      {/* fixed (not themed) — this card is a light island, see chartCardStyle comment */}
-      <p style={{ margin: '0 0 0.75rem', color: '#767676', fontSize: '0.8rem' }}>{subtitle}</p>
+      <p style={{ margin: '0 0 0.75rem', color: 'var(--muted)', fontSize: '0.8rem' }}>{subtitle}</p>
       {children}
     </div>
   );
@@ -212,40 +211,32 @@ const metricCardStyle = {
   color: 'var(--text)',
 };
 
-// The trend charts below render assuming a fixed light canvas (axes, gridlines,
-// tooltips) — reworking that for dark mode is a chart-redesign, not a low-hanging
-// fruit fix, so this card is a deliberate "light island": pin dark, readable text
-// on its own white surface instead of inheriting the page's (light-in-dark-mode)
-// text color, which would otherwise go near-invisible on this hardcoded white bg.
 const chartCardStyle = {
   padding: '1rem',
-  border: '1px solid #eee',
+  border: '1px solid var(--border)',
   borderRadius: '8px',
-  background: '#fff',
-  color: '#1a1a1a',
+  background: 'var(--input-bg)',
+  color: 'var(--text)',
 };
 
 const skeletonCardStyle = {
   ...metricCardStyle,
   height: '64px',
-  background: '#eee',
+  background: 'var(--border)',
 };
 
 const skeletonBlockStyle = {
   width: '100%',
   borderRadius: '8px',
-  background: '#eee',
+  background: 'var(--border)',
 };
-
-const thStyle = { padding: '0.5rem' };
-const tdStyle = { padding: '0.5rem' };
 
 const activityItemStyle = {
   display: 'flex',
   justifyContent: 'space-between',
   gap: '1rem',
   padding: '0.5rem 0',
-  borderBottom: '1px solid #eee',
+  borderBottom: '1px solid var(--border)',
 };
 
 export default DashboardPage;

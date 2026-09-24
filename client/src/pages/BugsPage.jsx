@@ -120,34 +120,34 @@ function BugsPage() {
       {loading && <p>Loading...</p>}
 
       {!loading && !error && (
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <table className="data-table">
           <thead>
-            <tr style={{ textAlign: 'left', borderBottom: '2px solid #ddd' }}>
-              <th style={thStyle} aria-sort={sortAriaValue('title')}>
+            <tr>
+              <th aria-sort={sortAriaValue('title')}>
                 <button type="button" style={sortButtonStyle} onClick={() => toggleSort('title')}>
                   Title
                   <SortArrow column="title" />
                 </button>
               </th>
-              <th style={thStyle} aria-sort={sortAriaValue('severity')}>
+              <th aria-sort={sortAriaValue('severity')}>
                 <button type="button" style={sortButtonStyle} onClick={() => toggleSort('severity')}>
                   Severity
                   <SortArrow column="severity" />
                 </button>
               </th>
-              <th style={thStyle} aria-sort={sortAriaValue('priority')}>
+              <th aria-sort={sortAriaValue('priority')}>
                 <button type="button" style={sortButtonStyle} onClick={() => toggleSort('priority')}>
                   Priority
                   <SortArrow column="priority" />
                 </button>
               </th>
-              <th style={thStyle} aria-sort={sortAriaValue('status')}>
+              <th aria-sort={sortAriaValue('status')}>
                 <button type="button" style={sortButtonStyle} onClick={() => toggleSort('status')}>
                   Status
                   <SortArrow column="status" />
                 </button>
               </th>
-              <th style={thStyle} aria-sort={sortAriaValue('updatedAt')}>
+              <th aria-sort={sortAriaValue('updatedAt')}>
                 <button type="button" style={sortButtonStyle} onClick={() => toggleSort('updatedAt')}>
                   Updated
                   <SortArrow column="updatedAt" />
@@ -164,18 +164,18 @@ function BugsPage() {
               </tr>
             )}
             {items.map((b) => (
-              <tr key={b.id} style={{ borderBottom: '1px solid #eee' }}>
-                <td style={tdStyle}>
+              <tr key={b.id}>
+                <td>
                   <Link to={`/bugs/${b.id}`}>{b.title}</Link>
                 </td>
-                <td style={tdStyle}>
+                <td>
                   <SeverityBadge severity={b.severity} />
                 </td>
-                <td style={tdStyle}>
+                <td>
                   <PriorityBadge priority={b.priority} />
                 </td>
-                <td style={tdStyle}>{b.status}</td>
-                <td style={tdStyle}>{new Date(b.updatedAt).toLocaleString()}</td>
+                <td>{b.status}</td>
+                <td>{new Date(b.updatedAt).toLocaleString()}</td>
               </tr>
             ))}
           </tbody>
@@ -192,9 +192,6 @@ function BugsPage() {
     </div>
   );
 }
-
-const thStyle = { padding: '0.5rem' };
-const tdStyle = { padding: '0.5rem' };
 
 const sortButtonStyle = {
   display: 'inline-flex',

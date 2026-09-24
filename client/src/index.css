@@ -5,7 +5,7 @@
   --text: #1a1a1a;
   --border: #dddddd;
   --input-bg: #ffffff;
-  --link: #2563eb;
+  --link: #556b2f;
   --nav-bg: #dff3e3;
   --nav-border: #bfe3c8;
   --nav-text: #14401f;
@@ -23,7 +23,7 @@
   --text: #e8e8e8;
   --border: #3a3d44;
   --input-bg: #22252b;
-  --link: #8ab4f8;
+  --link: #8fae6b;
   --nav-bg: #16281d;
   --nav-border: #21402b;
   --nav-text: #cdeed7;
@@ -132,6 +132,79 @@ button {
 .btn-secondary:disabled {
   opacity: 0.55;
   cursor: not-allowed;
+}
+
+/* Destructive actions (delete/remove), app-wide. Fixed literal colors — like
+   SeverityBadge/FlakyBadge, deliberately the same in light and dark mode. */
+.btn-danger {
+  display: inline-block;
+  padding: 0.45rem 1.1rem;
+  border-radius: 8px;
+  border: 1px solid #f3b0ad;
+  background: #fde2e1;
+  color: #a01c1c;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: filter 0.15s ease, transform 0.1s ease;
+}
+
+.btn-danger:hover:not(:disabled) {
+  filter: brightness(0.96);
+}
+
+.btn-danger:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.btn-danger:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Pass/Fail/Skip result buttons (test run view) — same fixed-color convention. */
+.btn-result {
+  display: inline-block;
+  padding: 0.45rem 1.1rem;
+  border-radius: 8px;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: filter 0.15s ease, transform 0.1s ease;
+}
+
+.btn-result:hover:not(:disabled) {
+  filter: brightness(0.96);
+}
+
+.btn-result:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.btn-result:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn-result-pass {
+  border: 1px solid #a8dab8;
+  background: #d9f2e3;
+  color: #1a7f37;
+}
+
+.btn-result-fail {
+  border: 1px solid #f3b0ad;
+  background: #fde2e1;
+  color: #a01c1c;
+}
+
+.btn-result-skip {
+  border: 1px solid #e6d68a;
+  background: #fff6cc;
+  color: #8a7000;
 }
 
 /* Shared select + search input style */
@@ -532,4 +605,27 @@ dialog::backdrop {
   font-size: 0.85rem;
   font-style: italic;
   text-align: right;
+}
+
+/* Shared list-page data table — one place to keep every list page's table
+   (Test Cases, Bugs, Suites, Runs, Reports, Flaky Tests, Import CSV) visually
+   identical and theme-correct, instead of each page reimplementing its own
+   thStyle/tdStyle and border colors. */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table th,
+.data-table td {
+  padding: 0.5rem;
+  text-align: left;
+}
+
+.data-table thead tr {
+  border-bottom: 2px solid var(--border);
+}
+
+.data-table tbody tr {
+  border-bottom: 1px solid var(--border);
 }

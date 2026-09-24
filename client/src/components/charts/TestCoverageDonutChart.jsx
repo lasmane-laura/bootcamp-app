@@ -189,7 +189,7 @@ const cellStyle = { padding: '0.4rem 0.5rem' };
 const tooltipStyle = {
   position: 'absolute',
   transform: 'translate(-50%, -100%)',
-  background: '#fff',
+  background: INK.surface,
   border: `1px solid ${INK.axis}`,
   borderRadius: '6px',
   padding: '0.4rem 0.6rem',

@@ -188,34 +188,34 @@ function TestCasesPage() {
 
       {!loading && !error && (
         <>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <table className="data-table">
             <thead>
-              <tr style={{ textAlign: 'left', borderBottom: '2px solid #ddd' }}>
-                <th style={thStyle} aria-sort={sortAriaValue('title')}>
+              <tr>
+                <th aria-sort={sortAriaValue('title')}>
                   <button type="button" style={sortButtonStyle} onClick={() => toggleSort('title')}>
                     Title
                     <SortArrow column="title" />
                   </button>
                 </th>
-                <th style={thStyle} aria-sort={sortAriaValue('severity')}>
+                <th aria-sort={sortAriaValue('severity')}>
                   <button type="button" style={sortButtonStyle} onClick={() => toggleSort('severity')}>
                     Severity
                     <SortArrow column="severity" />
                   </button>
                 </th>
-                <th style={thStyle} aria-sort={sortAriaValue('status')}>
+                <th aria-sort={sortAriaValue('status')}>
                   <button type="button" style={sortButtonStyle} onClick={() => toggleSort('status')}>
                     Status
                     <SortArrow column="status" />
                   </button>
                 </th>
-                <th style={thStyle} aria-sort={sortAriaValue('updatedAt')}>
+                <th aria-sort={sortAriaValue('updatedAt')}>
                   <button type="button" style={sortButtonStyle} onClick={() => toggleSort('updatedAt')}>
                     Updated
                     <SortArrow column="updatedAt" />
                   </button>
                 </th>
-                <th style={thStyle}></th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -227,18 +227,18 @@ function TestCasesPage() {
                 </tr>
               )}
               {items.map((tc) => (
-                <tr key={tc.id} style={{ borderBottom: '1px solid #eee' }}>
-                  <td style={tdStyle}>
+                <tr key={tc.id}>
+                  <td>
                     <button type="button" style={rowTitleButtonStyle} onClick={() => setViewing(tc)}>
                       {tc.title}
                     </button>
                   </td>
-                  <td style={tdStyle}>
+                  <td>
                     <SeverityBadge severity={tc.severity} />
                   </td>
-                  <td style={tdStyle}>{tc.status}</td>
-                  <td style={tdStyle}>{new Date(tc.updatedAt).toLocaleString()}</td>
-                  <td style={{ ...tdStyle, position: 'relative', textAlign: 'right' }} data-row-menu>
+                  <td>{tc.status}</td>
+                  <td>{new Date(tc.updatedAt).toLocaleString()}</td>
+                  <td style={{ position: 'relative', textAlign: 'right' }} data-row-menu>
                     <button
                       className="btn-secondary"
                       style={{ padding: '0.5rem 0.75rem' }}
@@ -260,7 +260,7 @@ function TestCasesPage() {
                         >
                           Edit
                         </button>
-                        <button style={menuItemStyle} onClick={() => handleDelete(tc.id)}>
+                        <button style={menuItemDangerStyle} onClick={() => handleDelete(tc.id)}>
                           Delete
                         </button>
                       </div>
@@ -300,9 +300,6 @@ function TestCasesPage() {
     </div>
   );
 }
-
-const thStyle = { padding: '0.5rem' };
-const tdStyle = { padding: '0.5rem' };
 
 const rowTitleButtonStyle = {
   background: 'none',
@@ -347,6 +344,12 @@ const menuItemStyle = {
   background: 'none',
   textAlign: 'left',
   cursor: 'pointer',
+};
+
+const menuItemDangerStyle = {
+  ...menuItemStyle,
+  background: '#fde2e1',
+  color: '#a01c1c',
 };
 
 export default TestCasesPage;

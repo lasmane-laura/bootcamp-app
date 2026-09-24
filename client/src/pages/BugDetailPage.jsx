@@ -5,6 +5,7 @@ import SeverityBadge from '../components/SeverityBadge';
 import PriorityBadge from '../components/PriorityBadge';
 import BugForm from '../components/BugForm';
 import Select from '../components/Select';
+import AttachmentIcon from '../components/AttachmentIcon';
 
 const TRANSITIONS = {
   open: ['in-progress', 'closed'],
@@ -106,7 +107,7 @@ function BugDetailPage() {
           <button className="btn-secondary" onClick={() => setEditing(true)}>
             Edit
           </button>
-          <button className="btn-secondary" onClick={handleDelete} disabled={busy}>
+          <button className="btn-danger" onClick={handleDelete} disabled={busy}>
             Delete
           </button>
         </div>
@@ -164,7 +165,7 @@ function BugDetailPage() {
                     style={{ width: '36px', height: '36px', objectFit: 'cover', borderRadius: '4px', flexShrink: 0 }}
                   />
                 ) : (
-                  <span aria-hidden="true" style={{ fontSize: '1.2rem', flexShrink: 0 }}>{a.kind === 'video' ? '🎬' : '📄'}</span>
+                  <AttachmentIcon kind={a.kind} />
                 )}
                 <a href={bugAttachmentUrl(bug.id, a.id)} target="_blank" rel="noreferrer">
                   {a.filename}
@@ -251,7 +252,7 @@ const sectionStyle = { marginBottom: '1.25rem' };
 const sectionHeadingStyle = { margin: '0 0 0.25rem', fontSize: '0.9rem', textTransform: 'uppercase', color: 'var(--muted)' };
 const activityItemStyle = {
   padding: '0.6rem 0',
-  borderBottom: '1px solid #eee',
+  borderBottom: '1px solid var(--border)',
   display: 'flex',
   flexDirection: 'column',
   gap: '0.15rem',
@@ -261,7 +262,7 @@ const attachmentRowStyle = {
   alignItems: 'center',
   gap: '0.5rem',
   padding: '0.4rem 0',
-  borderBottom: '1px solid #eee',
+  borderBottom: '1px solid var(--border)',
 };
 
 export default BugDetailPage;

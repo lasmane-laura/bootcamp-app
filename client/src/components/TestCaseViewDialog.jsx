@@ -42,7 +42,7 @@ function TestCaseViewDialog({ testCase, onClose, onEdit, onDelete }) {
         <button className="btn-secondary" onClick={() => onEdit(testCase)}>
           Edit
         </button>
-        <button className="btn-secondary" onClick={() => onDelete(testCase.id)}>
+        <button className="btn-danger" onClick={() => onDelete(testCase.id)}>
           Delete
         </button>
       </div>
