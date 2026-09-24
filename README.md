@@ -52,7 +52,12 @@ Render's CLI/Blueprint deploy needs to clone your code from GitHub (or GitLab/Bi
 brew install gh && gh auth login --web && gh repo create bootcamp-app --public --source=. --remote=github --push
 ```
 
-(If Render says it can't access the repo when you run the command below, connect your GitHub account once at https://dashboard.render.com/settings#git, then re-run it.)
+**Important — connect GitHub properly, or auto-deploy will silently never fire.** If you see `It looks like we don't have access to your repo, but we'll try to clone it anyway` in a build log, Render cloned the repo as a plain public URL without actually installing its GitHub App — the deploy still succeeds, `autoDeploy` will still show as `"yes"` in the service config, but **no webhook gets registered, so every future push does nothing** (this bit us for over a week of commits before we noticed). Fix it once, in the browser:
+
+1. Go to https://dashboard.render.com/u/settings#account-security → **Git Deployment Credentials** → **Add credential** → **GitHub**, and authorize access to this repo (or all repos).
+2. Open the service's own **Settings** tab and confirm/reconnect its repo link — a service created before the connection existed doesn't always pick it up automatically.
+3. Verify it actually worked at https://github.com/settings/installations — **Render** should be listed there with access to this repo. (Checking `gh api repos/<owner>/<repo>/hooks` is *not* a valid test — GitHub Apps don't register classic per-repo webhooks, so that endpoint returns `[]` even when the connection is correct.)
+4. If the live service was already stuck on an old commit, catch it up once with `render deploys create <service-id> --wait` — every push after that should auto-deploy on its own.
 
 ### The command to finish the deploy
 
