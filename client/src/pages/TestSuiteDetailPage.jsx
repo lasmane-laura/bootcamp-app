@@ -36,15 +36,25 @@ function TestSuiteDetailPage() {
     listTestCases({ pageSize: 500 }).then((data) => setAllTestCases(data.items));
   }, [id]);
 
-  function handlePointerDown(startCases, caseId) {
+  // Pointer Events (not mouse events) so this works for touch/pen as well as
+  // mouse — a real touchscreen drag never dispatches mousemove/mouseup.
+  function handlePointerDown(startCases, caseId, e) {
+    e.preventDefault();
+    e.currentTarget.setPointerCapture(e.pointerId);
     setDraggingId(caseId);
     let currentOrder = startCases;
 
-    function handlePointerMove(e) {
+    function pointFromEvent(ev) {
+      // Touch pointer events report client coords on the event itself, same as mouse.
+      return { x: ev.clientX, y: ev.clientY };
+    }
+
+    function handlePointerMove(ev) {
+      const { y } = pointFromEvent(ev);
       const rowEls = Array.from(document.querySelectorAll('[data-case-row]'));
       const overEl = rowEls.find((el) => {
         const rect = el.getBoundingClientRect();
-        return e.clientY >= rect.top && e.clientY <= rect.bottom;
+        return y >= rect.top && y <= rect.bottom;
       });
       if (!overEl) return;
 
@@ -64,8 +74,9 @@ function TestSuiteDetailPage() {
     }
 
     async function handlePointerUp() {
-      document.removeEventListener('mousemove', handlePointerMove);
-      document.removeEventListener('mouseup', handlePointerUp);
+      document.removeEventListener('pointermove', handlePointerMove);
+      document.removeEventListener('pointerup', handlePointerUp);
+      document.removeEventListener('pointercancel', handlePointerUp);
       setDraggingId(null);
       try {
         await reorderSuiteCases(id, currentOrder.map((c) => c.id));
@@ -75,8 +86,9 @@ function TestSuiteDetailPage() {
       }
     }
 
-    document.addEventListener('mousemove', handlePointerMove);
-    document.addEventListener('mouseup', handlePointerUp);
+    document.addEventListener('pointermove', handlePointerMove);
+    document.addEventListener('pointerup', handlePointerUp);
+    document.addEventListener('pointercancel', handlePointerUp);
   }
 
   async function handleKeyReorder(caseId, direction) {
@@ -187,7 +199,7 @@ function TestSuiteDetailPage() {
           >
             <button
               type="button"
-              onMouseDown={() => handlePointerDown(cases, c.id)}
+              onPointerDown={(e) => handlePointerDown(cases, c.id, e)}
               onKeyDown={(e) => {
                 if (e.key === 'ArrowUp') {
                   e.preventDefault();
@@ -207,6 +219,7 @@ function TestSuiteDetailPage() {
                 border: 'none',
                 background: 'none',
                 padding: '0.25rem',
+                touchAction: 'none',
               }}
             >
               ⠿
