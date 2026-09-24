@@ -15,6 +15,16 @@
             "timeout": 15
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/test_run_results.sh\"",
+            "timeout": 15
+          }
+        ]
       }
     ],
     "Stop": [

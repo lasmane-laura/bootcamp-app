@@ -7,3 +7,4 @@ build/
 .DS_Store
 server/data.sqlite
 server/uploads/
+.claude/hooks/.flaky-alert-state.json
